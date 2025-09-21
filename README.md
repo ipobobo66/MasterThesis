@@ -32,7 +32,6 @@ Here is a high-level look at what is inside:
 | `Qiskit setup and demos` | Code notebooks / scripts for quantum computing demos using Qiskit. |
 | `PPT folder` | Presentation slides for defense or progress reports. |
 | `Bibliography` | Reference files (BibTeX, etc.) and related citation management. |
-| `HUBOQUBO` | Possibly code or notebooks about HUBO/QUBO (Hybrid QUBO / Quadratic Unconstrained Binary Optimization) work. |
 | `KBtoTN` | Possibly conversion or mapping modules from knowledge base (KB) to something like tensor networks (TN). |
 | `dump` | Miscellaneous files, old versions, or data that don’t fit neatly elsewhere. |
 
@@ -45,7 +44,6 @@ Here is a suggested directory structure (reflecting what I see, may need tweaks)
 ```
 MasterThesis/
 ├── Bibliography/
-├── HUBOQUBO/
 ├── KBtoTN/
 ├── PPT folder/
 ├── Qiskit setup and demos/
@@ -81,17 +79,10 @@ You might consider adding a `requirements.txt` or `environment.yml` file so that
 
 ---
 
-## License
-
-*(If you have a license, state it here.)*  
-Example:  
-MIT License, or an academic license as you see fit.
-
----
 
 ## Contact
 
 For questions, feedback, or collaboration, please contact:
 
-**Author**: [Your Name]  
-**Email**: your.email@address.com  
+**Author**: Simon Botond 
+**Email**: ipobobo66@gmail.com
