@@ -1,0 +1,73 @@
+\babel@toc {ngerman}{}\relax 
+\babel@toc {ngerman}{}\relax 
+\babel@toc {british}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduction}{5}{chapter.1}%
+\contentsline {chapter}{\numberline {2}Foundations}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Logical Connectives and Probabilistic Models}{11}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Propositional Logic in AI}{13}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Graphical Models: Bayesian and Markov Networks}{14}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}Exponential Family Distributions}{16}{section.2.2}%
+\contentsline {subsection}{\numberline {2.2.1}Definition and Properties}{16}{subsection.2.2.1}%
+\contentsline {subsection}{\numberline {2.2.2}MLNs as exponential families}{18}{subsection.2.2.2}%
+\contentsline {section}{\numberline {2.3}Tensor Networks}{22}{section.2.3}%
+\contentsline {subsection}{\numberline {2.3.1}Tensor Network Basics}{22}{subsection.2.3.1}%
+\contentsline {subsection}{\numberline {2.3.2}Tensor Networks for Probabilistic Models}{22}{subsection.2.3.2}%
+\contentsline {section}{\numberline {2.4}Tensor Network Representation of Exponential Families}{24}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Slice Tensor Decomposition}{24}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Operational Mapping: Step-by-Step Example}{25}{subsection.2.4.2}%
+\contentsline {chapter}{\numberline {3}Quantum Sampling Algorithms}{27}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Quantum Gates, Circuits, and Measurement}{27}{section.3.1}%
+\contentsline {subsection}{\numberline {3.1.1}Qubit States and Quantum Registers}{27}{subsection.3.1.1}%
+\contentsline {subsection}{\numberline {3.1.2}Quantum Gates: Basic Building Blocks}{28}{subsection.3.1.2}%
+\contentsline {paragraph}{\nonumberline Single-Qubit Gates:}{29}{paragraph*.12}%
+\contentsline {paragraph}{\nonumberline Multi-Qubit Gates:}{29}{paragraph*.14}%
+\contentsline {subsection}{\numberline {3.1.3}Quantum Circuits}{30}{subsection.3.1.3}%
+\contentsline {subsection}{\numberline {3.1.4}Measurement in Quantum Mechanics}{31}{subsection.3.1.4}%
+\contentsline {paragraph}{\nonumberline Entanglement and Measurement:}{32}{paragraph*.17}%
+\contentsline {section}{\numberline {3.2}Amplitude Amplification: Theory and Practice}{33}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Grover’s Algorithm and Generalizations}{33}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Oracle and Diffusion Operator Design}{33}{subsection.3.2.2}%
+\contentsline {paragraph}{\nonumberline Oracle Operator $\mathbf {O}$:}{33}{paragraph*.19}%
+\contentsline {paragraph}{\nonumberline Diffusion Operator $\mathbf {D}$:}{34}{paragraph*.21}%
+\contentsline {paragraph}{\nonumberline Geometric Interpretation:}{34}{paragraph*.23}%
+\contentsline {subsection}{\numberline {3.2.3}Parameter Update Interpretation}{35}{subsection.3.2.3}%
+\contentsline {subsection}{\numberline {3.2.4}Scalability and Simulator Limitations}{36}{subsection.3.2.4}%
+\contentsline {section}{\numberline {3.3}From Tensor Networks to Quantum Circuits}{37}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Quantum Circuit Construction}{37}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Resource Estimates}{40}{subsection.3.3.2}%
+\contentsline {chapter}{\numberline {4}Experimental Evaluation}{43}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Use Case: Logical Connective Sampling}{43}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Problem Setup}{43}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Exponential family representation of the Logical Formula}{44}{subsection.4.1.2}%
+\contentsline {subsection}{\numberline {4.1.3}Amplitude Amplification for Exponential Families}{45}{subsection.4.1.3}%
+\contentsline {subsection}{\numberline {4.1.4}Quantum Circuit Implementation}{46}{subsection.4.1.4}%
+\contentsline {section}{\numberline {4.2}Results and Analysis}{47}{section.4.2}%
+\contentsline {subsection}{\numberline {4.2.1}Canonical Parameter Dynamics in Large-Scale Simulations}{49}{subsection.4.2.1}%
+\contentsline {paragraph}{\nonumberline Sinusoidal Variation of Sampling Probabilities}{50}{paragraph*.28}%
+\contentsline {paragraph}{\nonumberline Canonical Parameter Explosions and Their Interpretation}{50}{paragraph*.30}%
+\contentsline {section}{\numberline {4.3}Generalization and Scalability}{53}{section.4.3}%
+\contentsline {chapter}{\numberline {5}Benchmarking and Comparative Analysis}{55}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Classical Sampling Methods}{55}{section.5.1}%
+\contentsline {subsection}{\numberline {5.1.1}Brute-Force Enumeration}{55}{subsection.5.1.1}%
+\contentsline {subsection}{\numberline {5.1.2}Rejection Sampling}{56}{subsection.5.1.2}%
+\contentsline {subsection}{\numberline {5.1.3}Markov Chain Monte Carlo (MCMC)}{56}{subsection.5.1.3}%
+\contentsline {section}{\numberline {5.2}Quantum vs. Classical: Asymptotic Speedup}{57}{section.5.2}%
+\contentsline {subsection}{\numberline {5.2.1}Full Circuit Depth Analysis}{57}{subsection.5.2.1}%
+\contentsline {section}{\numberline {5.3}Resource Estimation and Practical Feasibility}{58}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Platform proposal}{58}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Circuit Compilation and Scaling}{60}{subsection.5.3.2}%
+\contentsline {subsection}{\numberline {5.3.3}Quantum vs. Classical Runtime Scaling}{61}{subsection.5.3.3}%
+\contentsline {subsection}{\numberline {5.3.4}Turnover Point Analysis}{61}{subsection.5.3.4}%
+\contentsline {subsection}{\numberline {5.3.5}Performance on trapped ion hardware}{62}{subsection.5.3.5}%
+\contentsline {subsection}{\numberline {5.3.6}Weak points and Possile improvements}{63}{subsection.5.3.6}%
+\contentsline {chapter}{\numberline {6}Discussion}{65}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Overview: Contributions within Artificial Intelligence}{65}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Scientific Results}{65}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Implications for quantum enhanced AI}{67}{section.6.3}%
+\contentsline {subsection}{\numberline {6.3.1}Unifying Symbolic and Probabilistic Reasoning}{67}{subsection.6.3.1}%
+\contentsline {subsection}{\numberline {6.3.2}Hardware Roadmaps and Near-Term Opportunities}{67}{subsection.6.3.2}%
+\contentsline {subsection}{\numberline {6.3.3}The Path to Hybrid Quantum-Classical AI}{68}{subsection.6.3.3}%
+\contentsline {section}{\numberline {6.4}Limitations and Open Challenges}{68}{section.6.4}%
+\contentsline {chapter}{\numberline {A}Code Listings}{73}{appendix.A}%
+\contentsline {chapter}{\nonumberline Bibliography}{79}{chapter*.38}%
+\providecommand \tocbasic@end@toc@file {}\tocbasic@end@toc@file 

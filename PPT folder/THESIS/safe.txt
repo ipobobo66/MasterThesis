@@ -1,0 +1,1251 @@
+ \documentclass[encoding=utf8,british]{tumphthesis}
+% \documentclass[pstricks,siunitx,addfonts,theorem,font=palatino,british]{tumphthesis}
+% für Dissertation:
+% \documentclass[encoding=utf8,british,dissertation,font=helvet]{tumphthesis}
+
+% Das folgende Paket dient lediglich dazu, den Blindtext "Lorem ipsum ..."
+% auszugeben und kann in einer echten Abschlussarbeit natürlich weggelassen 
+% (oder auskommentiert) werden.
+\usepackage{lipsum}
+
+% Die Metadaten der Abschlussarbeit (Bachelor oder Master) werden auf dem 
+% Deckblatt gedruckt und in dem PDF eingetragen.
+\subject{Quantum Science and Technology Master's thesis}
+\title{Quantum tensor networks for sampling}
+%\subtitle{\foreignlanguage{british}{Title in English}}
+\author{Simon Botond}
+\date{\today}
+%\cooperators{Max-Planck-Institut für Physik}
+
+% Alternativ Dissertation:
+%\title{Titel der Dissertation}
+%\subtitle{\foreignlanguage{british}{Title in English}}
+%\author{Sheldon Cooper}
+%\date{31.~Juli 2011}
+%\DepartmentOrIRC{Fakultät für Physik}
+%\DrDegree{der Naturwissenschaften}
+%\Vorsitz{Prof. Dr. Patricia Kabelschacht}
+%\ErstPrueferin{Prof. Dr. Erwin Brezensaltzer}
+%\ZweitPrueferin{PD Dr. habil. Heidelinde Musterfrau}
+%\DrittPrueferin{Prof. Dr. }
+
+% Auf der Rückseite des Deckblatts können Themensteller, Zweitgutachter 
+% und Tag der mündlichen Prüfung vermerkt werden.
+\lowertitleback{Erstgutachter (Themensteller): Dr. Jeanette Miriam-Lorentz\\
+Zweitgutachter: Alex Goessmann}
+
+% Die Bibliographie wirde über BibLaTeX mit Biber-Backend erstellt. 
+% Sofern vorhanden, wird eine bib-Datei \jobname.bib (i.d.R. also der 
+% gleiche Name wie die Hauptdatei nur bib-Endung) automatisch eingebunden.
+% Heißt sie anders oder müssen weitere Quelldateien eingebunden werden, so 
+% dient dazu der folgende Befehl (auch z.B. bei Verwendung von ShareLaTeX 
+% erforderlich, da hier \jobname auf output gesetzt wird)
+% \addbibresource{thesis.bib}
+
+\begin{document}
+% Ist die Arbeit auf Englisch verfasst, hier die Sprache umschalten. 
+% Die Sprache muss als Klassenoption angegeben sein.
+\selectlanguage{british}
+
+\frontmatter
+\maketitle
+
+%\newpage
+
+\mainmatter
+
+\chapter*{Abstract}
+
+Efficient sampling from complex probability distributions is a cornerstone of modern machine learning, enabling 
+critical tasks such as probabilistic inference, generative modeling, and optimization. Classical sampling methods, 
+including brute force or Markov Chain Monte Carlo methods, face prohibitive computational challenges as the 
+dimensionality and logical complexity of target distributions grow. This thesis investigates the potential of 
+quantum computing—specifically amplitude amplification algorithms—to overcome these limitations and deliver practical 
+advantages for machine learning sampling tasks. Through a systematic methodology, logical connectives and graphical 
+models are mapped to quantum circuits via the Tensor network decomposition of their exponential family distributions.
+Simulations on up to $\approx 30$ qubits (variables and ancillas together) demonstrate the scalability of quantum amplitude amplification, while 
+comparative analyses with classical baselines quantify speedup and a possible turnover point. The results reveal that 
+quantum-assisted sampling achieves quadratic speedups for structured distributions, though hardware constraints and 
+noise pose significant challenges. This work bridges quantum computing and machine learning by formalizing a 
+framework for integrating quantum sampling into classical workflows, offering a pathway toward scalable probabilistic 
+inference in AI systems.
+
+\tableofcontents
+
+\chapter{Introduction}
+
+    \section*{Motivation and Background}
+    \label{sect:Intro_mot_back}
+        Sampling is an essential part of a machine learning algorithm. Whenever the program makes a 
+        decision, handles predictions with uncertainty or gives solutions to a problem, it is a form of sampling 
+        from a vast set of information based on past data and / or knowledge.
+        Sampling therefore is fundamental in enabling probabilistic inference, uncertainty quantification, 
+        and optimization in high-dimensional spaces. As models are increasingly sophisticated — incorporating rich logical structures 
+        or large graphical dependencies — their complexity escalates and the computational demands of sampling algorithms 
+        grow exponentially. Classical methods, while foundational, struggle to balance accuracy and efficiency in 
+        high-dimensional or multimodal distributions. Quantum computing, with its inherent parallelism and interference 
+        capabilities suggest that quantum algorithms could offer speedups for certain sampling 
+        tasks, motivating a systematic investigation of their applicability and impact for machine learning~\cite{Mansky_2023}\cite{PubMed}. 
+        This thesis explores the intersection of quantum computing and machine learning, focusing on how quantum 
+        amplitude amplification can revolutionize sampling tasks in artificial intelligence.
+    The following sections elaborate on the motivation, challenges, opportunities, objectives, and structure 
+    of this work.
+
+    \section*{Classical Sampling in Machine Learning: Challenges}
+    \label{sect:Intro_Challanges}
+        Classical sampling algorithms, such as brute-force sampling, rejection sampling, and Markov Chain Monte Carlo (MCMC) methods;
+        face significant barriers in contemporary machine learning applications. High-dimensional distributions with 
+        complex dependencies or sharp peaks result in slow mixing times, autocorrelation, and exponential resource 
+        scaling. For example, sampling from Bayesian networks with hundreds of variables or training deep generative 
+        models with multimodal posteriors often becomes computationally intractable~\cite{Suzuki_2022}. These challenges are exacerbated 
+        by the `curse of dimensionality,' where the volume of the sampling space grows exponentially with the number 
+        of variables. Even state-of-the-art methods like Hamiltonian Monte Carlo or variational inference require 
+        trade-offs between approximation accuracy and computational cost, leaving room for fundamentally new 
+        computational paradigms.
+
+    \section*{Quantum Computing: Opportunities for Sampling}
+    \label{sect:Intro_Opportunities}
+        Quantum computing introduces novel strategies for sampling through principles such as superposition or 
+        entanglement, enabling new computational paradigms for sampling.  
+        Recent 
+        research demonstrates that quantum algorithms can sample from complex distributions with fewer resources than 
+        classical counterparts, particularly for problems with combinatorial structure or where classical simulation 
+        is intractable or even computationally prohibitive~\cite{larose2024briefhistoryquantumvs}\cite{Wilson_2021}. Quantum amplitude amplification, a 
+        generalization of Grover's search algorithm~\cite{Grover} enables quadratic speedups in identifying `good' 
+        solution states, and with repeated application also amplifying them within unstructured search spaces. Thus by encoding probability distributions into quantum 
+        states, this technique can efficiently sample from distributions that would be unfeasible for classical systems.
+        Also, recent advances in quantum hardware, such as improved gate fidelities and coherence times suggest that 
+        near-term devices may soon support practical implementations~\cite{IQM2024}. However, practical deployment depends on 
+        circuit depth, noise resilience, hardware capabilities and seamless integration with classical machine 
+        learning workflows, posing as critical challenges for quantum procedures to effectively overcome classical ones~\cite{Moody2025}\cite{SpinQ2025}.
+
+    \section*{Thesis Objectives and Contributions}
+    \label{sect:Intro_Objectives}
+        This thesis aims to bridge the gap between theory and practice in quantum-assisted sampling for machine 
+        learning, through the following contributions:    
+        \begin{itemize}
+            \item A systematic methodology for mapping logical connectives and graphical models to tensor networks
+            formalization of exponential family distributions, enabling their representation as quantum circuits.
+            \item A framework for integrating quantum sampling into the TNREASON library, enabling hybrid 
+            quantum-classical inference for nested probabilistic models.
+            \item Implementation and simulation of amplification-based quantum sampling routines on said mapped distributions.
+            \item Compare quantum sampling with classical baselines, quantifying speed, accuracy, and scalability,
+            and analyzing theoretical speedup over classical counterparts.
+            \item Resource estimation studies for near-term quantum hardware, assessing the procedure's 
+            empirical performance, providing actionable insights for algorithm deployment on NISQ platforms.
+        \end{itemize}
+
+    \section*{Thesis Structure}
+    \label{sect:Intro_Structure}
+        The remainder of this work is organized as follows:
+        \begin{itemize}
+            \item \textbf{Chapter 2} reviews foundational concepts in logical connectives, graphical models, and 
+            exponential familiy distributions, with their tensor network representations.
+            \item \textbf{Chapter 3} introduces quantum computing, defining quantum gates and measurements, tensor network mapping,
+            then turning to quantum amplitude amplification.
+            \item \textbf{Chapter 4} destribes my implementation of mapping a one dimensional logical formula to a quantum circuit, 
+            and performing the previously defined quantum measurement and amplitude amplification.
+            \item \textbf{Chapter 5} benchmarks quantum sampling against classical methods, with analyzing scalability, and 
+            comparing theoretical speedups, and discusses practical deployment constraints.
+            \item \textbf{Chapter 6} explores broader implications, limitations, and future research directions, finally 
+            concludes with a synthesis of contributions and an outlook on quantum sampling in AI.
+        \end{itemize}
+
+\chapter{Foundations}
+
+    \section{Logical Connectives and Probabilistic Models}
+    \label{sect:Foundations_modelling}
+        Artificial Intelligence (AI) and Machine Learning (ML) inherently involve sampling problems during training, learning, and optimization. 
+        Data and knowledge can be represented through diverse models, each with distinct advantages. Probabilistic graphical models—such as Bayesian 
+        networks and Markov Random Fields—have become dominant in real-world applications due to their natural handling of uncertainty and explicit 
+        representation of variable dependencies via graph structures~\cite{NumberAnalytics2025}. Conversely in -- the still well used -- logical approaches data is naturally encoded as 
+        logical propositions with inference traditionally retrieving deterministic conclusions, though modern extensions integrate probabilistic interpretations and sampling~\cite{CS188}.
+        \\
+        With extending the practical usage of logics, the field of Statistical Relational AI bridges this gap, unifying logical relations with statistical 
+        models to handle uncertainty systematically. This synthesis, often termed \textit{neuro-symbolic AI}~\cite{Toward_a_broad_AI}, leverages the 
+        structured reasoning of logic and the uncertainty modeling of graphical models. For instance, logical rules can be embedded as soft constraints in probabilistic 
+        frameworks, enabling hybrid inference that balances symbolic precision with statistical robustness.
+        \\
+        Both probabilistic and logical systems assume a factored structure, where system states are assignments to a set of variables. This 
+        structure admits a natural tensor representation, where variables correspond to tensor indices and their assignments to tensor 
+        entries. For example, a probability distribution over binary variables $X_1, \ldots, X_n$ can be encoded as a rank-$n$ tensor 
+        $\mathcal{T}[X_1, \ldots, X_n]$, with each entry storing the probability of a specific joint assignment. Similarly, logical formulas map to 
+        tensors via one-hot encodings, where entries indicate formula satisfaction (1, TRUE) or violation (0, FALSE) of the given single logical connectives.
+
+        Tensor methods provide a unifying formalism for reasoning algorithms across probabilistic and logical frameworks. Marginalization in Bayesian 
+        networks corresponds to tensor contraction, while logical inference reduces to multilinear operations on formula-encoded tensors. This shared 
+        mathematical foundation enables seamless integration of probabilistic graphical models and symbolic logic, paving the way for scalable quantum 
+        sampling algorithms that exploit tensor network decompositions.
+
+        \subsection{Propositional Logic in AI}
+        \label{subsect:Foundations_modelling_proplog}
+            Propositional logic is a fundamental tool in artificial intelligence for representing and manipulating knowledge in a formal, symbolic manner. 
+            In this framework, knowledge is encoded as a set of atomic propositions, each of which can be either true or false. These atomic propositions 
+            can be combined using logical connectives such as AND ($\land$), OR ($\lor$), XOR ($\oplus$), NOT ($\neg$), IMPLIES ($\rightarrow$) and BIJECTION ($\leftrightarrow$) to form more complex 
+            statements or formulas, the symbolization of which is:
+            \begin{equation}
+                [[A \land B] \rightarrow C] = A \; and \; B \; implies \; C,
+                \label{eq:Logical_conn_ex}
+            \end{equation}
+            meaning that our premises are:
+            \begin{itemize}
+                \item \textbf{Formula:} $[[A \land B] \rightarrow C]$ 
+                \item \textbf{Premise 1:} $X \rightarrow C$
+                \item \textbf{Premise 2:} $[A \land B] = X$, where $X$ serves as an intermediate variable
+                \item \textbf{Conclusion:} $C$
+            \end{itemize}
+            so that to have the formula true, we need the premises -- defined by atomic (indivisible) statements -- to be true.
+            \\
+            Logical reasoning in AI often involves determining the satisfiability of a set of formulas, performing inference (e.g., deducing new facts from 
+            known ones), and checking entailment between statements. For example, given a knowledge base consisting of rules and facts, an AI system can 
+            use logical inference mechanisms such as Modus Ponens or Resolution to derive new conclusions. This symbolic approach underpins many classical 
+            AI systems, including expert systems, rule-based engines, and automated theorem provers.
+
+            Importantly, logical connectives can be mapped to indicator functions or binary variables, which facilitates their integration into probabilistic 
+            models. For instance, the truth value of a conjunction of variables can be represented as the product of their indicator variables. This mapping 
+            provides a bridge between symbolic logic and statistical modeling, enabling hybrid approaches that combine the strengths of both paradigms.
+
+        \subsection{Graphical Models: Bayesian and Markov Networks}
+        \label{subsect:Foundations_modelling_Bay&Mar}
+            Probabilistic graphical models (PGMs) provide a powerful framework for representing the conditional dependencies among random 
+            variables in complex systems. There are two principal types of graphical models: Bayesian networks and Markov random fields 
+            (also known as Markov networks).
+
+            \textbf{Bayesian networks} are directed acyclic graphs (DAGs) where each node corresponds to a random variable, and directed 
+            edges encode conditional dependencies. The joint probability distribution factorizes according to the graph structure:
+            \begin{equation}
+                P(X_1, \ldots, X_n) = \prod_{i=1}^n P(X_i \mid \text{Pa}(X_i))
+            \end{equation}
+            where $\text{Pa}(X_i)$ denotes the set of parent nodes of $X_i$. This factorization enables efficient inference and learning, 
+            especially when the graph is sparse.
+
+            \textbf{Markov random fields} are undirected graphs where nodes represent random variables and edges encode direct probabilistic 
+            interactions. The joint distribution is expressed as a product of potential functions over cliques (fully connected subsets of 
+            nodes):
+            \begin{equation}
+                P(X_1, \ldots, X_n) = \frac{1}{Z} \prod_{C \in \mathcal{C}} \psi_C(X_C)
+            \end{equation}
+            where $\mathcal{C}$ is the set of cliques, $\psi_C$ are non-negative potential functions, and $Z$ is the partition function 
+            ensuring normalization. It also can be defined through a partition function and an energy function:
+            \begin{equation}
+                P(X) = \frac{1}{Z} \exp \left( \sum_i w_i \phi_i (X) \right)
+                \label{eq:MLN_energy}
+            \end{equation}
+            This energy based representation perfectly overlaps with the Exponential family representation.
+            \linebreak
+            Both Bayesian networks and Markov networks can represent high-dimensional distributions compactly, capturing complex dependencies 
+            among variables. Many logical knowledge bases and rule systems can be embedded within graphical models, providing a bridge between 
+            symbolic and probabilistic reasoning. For example, logical rules can be encoded as hard or soft constraints in the potentials of a 
+            Markov network or as conditional probability tables in a Bayesian network.
+
+    \section{Exponential Family Distributions}
+    \label{sect:Foundations_ExpFam}
+        \subsection{Definition and Properties}
+        \label{subsect:Foundations_ExpFam_Definition}
+            The exponential family is a broad class of probability distributions that share a common functional (energy based) form, making them 
+            particularly amenable to statistical inference and learning~\cite{NOW-exp}\cite{Geiger-exp}. 
+            \newpage
+            \textbf{Canonical parameterization}\\
+            A probability distribution $p(x\,|\,\theta)$ belongs to the exponential family if it can be parametrized as:
+            \begin{equation}
+                p(x) = \exp \{ \langle \theta , \phi(x) \rangle - A(\theta) \}
+                \label{eq:expfam_def}
+            \end{equation}
+            where $\theta$ is the vector of natural (canonical) parameters, $\phi(x)$ is the vector of 
+            sufficient statistics, and $A(\theta)$ is the log-partition function (also called the cumulant function) that 
+            ensures normalization, as per:
+            \begin{equation*}
+                A(\theta) = \log \int_{\chi^m} \exp \langle \theta , \phi(x) \rangle \nu dx
+            \end{equation*}
+            where we presume that the integral is finite, so this defnition ensures that $p(x)$ is properly normalized.
+            \\ \textbf{Mean parameterization}\\
+            In addition to the `natural' parameterization by canonical parameters and sufficient statistics, every exponential family admits 
+            a dual, alternative, so-called mean parameterization. The mean parameters $\mu_{\alpha}$ are
+            associated with the sufficient statistic $\phi_{\alpha}$ as it is defined as the expected values of the sufficient statistics under the distribution:
+            \begin{equation}
+                \mu_{\alpha} = \mathbb{E}_{p}[\phi_{\alpha}(x)],
+                \label{eq:expfam_def_mean}
+            \end{equation}
+            thus a mean parameter can be defined for each sufficient statistic, creating a set of all realizable mean parameters, known as the 
+            \textit{marginal polytope} or \textit{mean parameter space}:
+            \begin{equation}
+                \mathcal{M} := \{ \mu \in \mathbb{R}^d \: | \: \exists \: p \; s.t. \; \mathbb{E}[\phi_{\alpha}(X)] = \mu_\alpha\}
+            \end{equation}
+
+            A fundamental property of exponential families is that the mapping from canonical parameters $\theta$ to mean parameters $\mu$ 
+            is given by the gradient of the log-partition function:
+            \begin{equation}
+                \mu = \nabla_\theta A(\theta),
+            \end{equation}
+            and, for minimal exponential families, this mapping is bijective between the interior of the mean parameter space and the 
+            natural parameter space. This duality underlies variational inference, maximum likelihood estimation, and moment-matching procedures
+            In practice, mean parameters often correspond to marginal 
+            probabilities (e.g., node and edge marginals in graphical models), and many inference algorithms (such as mean field and 
+            variational methods) operate directly in the mean parameter space. For example marginalization can be understood as transfroming from one parametrization to the other.
+
+            Key properties of exponential family distributions include:
+            \begin{itemize}
+                \item \textbf{Sufficient statistics}: The function $\phi(x)$ captures all information about the data relevant to 
+                parameter estimation.
+                \item \textbf{Conjugacy}: Many exponential family distributions admit conjugate priors, simplifying Bayesian 
+                inference.
+                \item \textbf{Tractable moments}: Moments and cumulants of the distribution can be computed as derivatives of 
+                $A(\theta)$.
+                \item \textbf{Generalization}: Many common distributions, such as the Bernoulli, multinomial, normal, and Poisson, 
+                and Markov Logic Networks as well are members of the exponential family.
+            \end{itemize}
+
+            In the context of AI and machine learning, exponential familiy representations can provide a general, 
+            unified framework that encompasses many commonly used distributions, such as probabilistic graphical models and logic-based systems. 
+            By choosing appropriate sufficient statistics (such as indicator functions for logical formulas), 
+            one can encode logical constraints and probabilistic dependencies within a single, tractable mathematical formalism.
+
+        \subsection{Examples Relevant to Logical Connectives}
+        \label{subsect:Foundations_ExpFam_mapping}
+            Many logical knowledge bases, Markov logic networks (MLNs), and rule-based systems can be naturally expressed within the 
+            exponential family framework. In MLNs, for example, each logical formula $\phi_i$ is associated with a weight $\theta_i$, 
+            and the probability of a world (i.e., a complete assignment of truth values) is given by:
+            \begin{equation}
+                P(X) \propto \exp\left( \sum_i \theta_i \phi_i(X) \right)
+            \end{equation}
+            as seen in eq.~\ref{eq:MLN_energy}. Here, $\phi_i(X)$ is an indicator function that evaluates to 1 if the formula is satisfied by $X$, and 0 otherwise. The 
+            weights $\theta_i$ determine the strength of each logical constraint: large positive values enforce hard constraints, 
+            while smaller values allow for soft, probabilistic reasoning.
+
+            This representation allows for the seamless integration of symbolic logic and statistical learning. Logical connectives 
+            can be encoded as sufficient statistics in the exponential family, and their weights can be learned from data. As the 
+            weights become large, the model approaches a purely logical system; as they decrease, the model becomes more probabilistic, 
+            capturing uncertainty and noise in the data.
+    \section{Tensor Networks}
+    \label{sect:Foundations_TN}
+
+        \subsection{Tensor Network Basics}
+        \label{subsect:Foundations_TN_Basics}
+
+            A \textit{tensor} is a multi-dimensional array generalizing scalars (0th order), vectors (1st order), and matrices 
+            (2nd order) to higher dimensions. Formally, an $n$th-order tensor $\mathcal{T} \in \mathbb{R}^{d_1 \times \cdots \times 
+            d_n}$ has $n$ indices, each ranging over dimensions $d_1, \ldots, d_n$. Tensors enable compact representation of 
+            high-dimensional functions, such as joint probability distributions over many variables.
+
+            A \textit{tensor network} is a structured factorization of a high-order tensor into a collection of lower-order tensors 
+            connected via contractions over shared indices. Graphically, nodes represent tensors, and edges denote contracted indices.
+
+            Key operations in tensor networks include:
+            \begin{itemize}
+                \item \textbf{Contraction}: Summing over shared indices, e.g., $\mathcal{C}[i,j] = \sum_k \mathcal{A}[i,k] \mathcal{B}[k,j]$ for matrix multiplication.
+                \item \textbf{Decomposition}: Approximating $\mathcal{T}$ as a network of smaller tensors via formats 
+                (like Canonical-Polyadic (CP), Matrix Product State (MPS), or tensor train (TT)).
+                \item \textbf{Normalization}: Enforcing constraints (e.g., non-negativity) to represent valid probability distributions.
+            \end{itemize}
+
+            Tensor networks excel at capturing locality and hierarchy in data. For example, a tree tensor network (TTN) mirrors the 
+            structure of a Bayesian network, with each node representing a conditional probability table and edges encoding variable 
+            dependencies.
+
+        \subsection{Tensor Networks for Probabilistic Models}
+        \label{subsect:Foundations_TN_ProbNetw}
+
+            The joint probability distribution of a graphical model can be encoded as a tensor where each entry $\mathcal{T}[x_1, 
+            \ldots, x_n]$ stores $P(X_1=x_1, \ldots, X_n=x_n)$. Tensor networks factorize this high-dimensional tensor into localized 
+            components reflecting the model's conditional independence structure.
+
+            \textbf{Example: Bayesian Network as a Tensor Network} \\
+            Consider a Bayesian network over binary variables $X_1, X_2, X_3$ with edges $X_1 \rightarrow X_2$ and $X_2 \rightarrow X_3$. 
+            The joint distribution is:
+            \begin{equation}
+                P(X_1, X_2, X_3) = P(X_1)P(X_2|X_1)P(X_3|X_2)
+            \end{equation}
+            Which factorizes to a tensor network:
+            \begin{equation}
+                \mathcal{T}[X_1, X_2, X_3] = \sum_{Y} \mathcal{A}[X_1]\mathcal{B}[X_1, X_2, Y]\mathcal{C}[X_2, X_3, Y]
+            \end{equation}
+            where $Y$ is an auxiliary index connecting the two conditional tensors 
+            $\mathcal{B}[X_1, X_2, Y]$ and $\mathcal{C}[X_2, X_3, Y]$, with $\mathcal{A}[X_1]$ being the prior tensor to $X_1$.
+
+            \textbf{Example: Markov Random Field as a Tensor Network} \\
+            Consider a Markov random field (MRF) over binary variables $X_1, X_2, X_3$ with cliques $\{X_1, X_2\}$ and $\{X_2, X_3\}$. 
+            Its joint distribution is:
+            \begin{equation}
+                P(X) = \frac{1}{Z} \psi_{12}(X_1, X_2) \psi_{23}(X_2, X_3)
+            \end{equation}
+            This corresponds to a tensor network:
+            \begin{equation}
+                \mathcal{T}[X_1, X_2, X_3] = \sum_{Y} \psi_{12}[X_1, X_2, Y] \psi_{23}[Y, X_2, X_3]
+            \end{equation}
+            where $Y$ is an auxiliary index connecting the two clique tensors. This meets the Tensor Network representation of Propositional 
+            Logical formulas as well, where we can define the unique Logical connectives through the $\psi_{X_n, X_m, Y}$ functions,
+            with $X_n, X_m$ being the variables for the connective and the $Y$ should be the `ancilla' connecting the connectives to 
+            have the Logical formula in the end. 
+
+            \textbf{Key Applications:}
+            \begin{itemize}
+                \item \textbf{Marginalization}: Computing $P(X_i)$ reduces to contracting all indices except $X_i$. For a TTN, this scales 
+                linearly in $n$ rather than exponentially.
+                \item \textbf{Sampling}: Ancestral sampling in Bayesian networks corresponds to sequential contractions in directed 
+                tensor networks.
+                \item \textbf{Learning}: Maximum likelihood estimation becomes tensor factorization, e.g., using alternating least 
+                squares (ALS).
+            \end{itemize}
+
+	\section{Tensor Network Representation of Exponential Families}
+	\label{sect:sect:Foundations_EXP2TN}
+        Exponential family distributions, due to their structured parameterization and sufficient statistics, are naturally suited for 
+        representation as tensor networks. This correspondence enables efficient manipulation, marginalization, and sampling—crucial for 
+        high-dimensional probabilistic models and for mapping to quantum circuits.
+
+		\subsection{Slice Tensor Decomposition}
+		\label{subsect:Foundations_EXP2TN_slice}
+
+		A central technique for representing high-order tensors arising from exponential family models is \textit{slice tensor decomposition}. 
+        In this approach, a high-dimensional tensor $\mathcal{T}[X_1, \ldots, X_n]$ encoding the joint distribution is factorized into a sum 
+        of lower-rank tensors (slices) along one or more modes:
+		\begin{equation}
+		    \mathcal{T}[X_1, \ldots, X_n] = \sum_{k=1}^r \lambda_k \, \mathcal{A}_k[X_1] \otimes \mathcal{B}_k[X_2, \ldots, X_n]
+		\end{equation}
+		where $\lambda_k$ are scalar coefficients, and $\mathcal{A}_k$, $\mathcal{B}_k$ are subtensors or vectors corresponding to particular 
+        slices. This decomposition preserves the conditional independence structure of the underlying graphical or logical model and allows 
+        for efficient storage and computation, especially when the tensor admits a low-rank structure.
+
+		Slice decomposition is particularly powerful for models with factorizable sufficient statistics, such as those arising in Markov logic 
+        networks or graphical models, where each logical formula or clique potential can be associated with a tensor slice. The resulting \
+        network of slices can then be contracted (multiplied and summed over shared indices) to recover marginals or conditionals.
+
+        \subsection{Operational Mapping: Step-by-Step Example}
+        \label{subsect:StepByStep}
+        To illustrate, consider a simple exponential family model over three binary variables $X_1, X_2, X_3$. The joint distribution can 
+        be encoded as a rank-3 tensor $\mathcal{T}[X_1, X_2, X_3]$. Suppose the model factorizes as:
+        \begin{equation}
+            \mathcal{T}[X_1, X_2, X_3] = \sum_{k=1}^r \mathcal{S}_k[X_1] \cdot \mathcal{U}_k[X_2] \cdot \mathcal{V}_k[X_3]
+        \end{equation}
+        where each $\mathcal{S}_k, \mathcal{U}_k, \mathcal{V}_k$ is a vector (or slice) over its respective variable, and $r$ is the 
+        decomposition rank. This format is equivalent to the canonical polyadic (CP) decomposition and is especially efficient when $r$ is 
+        small compared to the full tensor size.
+
+        In practice, such decompositions can be obtained via algebraic methods (e.g., alternating least squares) or by exploiting the 
+        structure of the model (e.g., using the factor graph or logical formulae). The resulting tensor network can then be contracted to 
+        compute marginals, conditionals, or to generate samples.
+
+
+\chapter{Quantum Sampling Algorithms}
+
+    \section{Quantum Gates, Circuits, and Measurement}
+    \label{sect:QSA_Basics}
+    Quantum gates, circuits, and measurements together provide the operational foundation for all quantum algorithms. Gates manipulate the 
+    amplitudes and phases of quantum states, circuits implement complex transformations, and measurement extracts classical information, 
+    enabling quantum algorithms to outperform their classical counterparts in sampling, search, and inference~\cite{Nielsen_Chuang_2010}.
+
+    This section summarizes the essential elements relevant for later procedures, such as amplitude amplification and the collective quantum sampling algorithm.
+
+        \subsection{Qubit States and Quantum Registers}
+        A single qubit is described by a state vector in a two-dimensional Hilbert space,
+        \begin{equation*}
+            \ket{a} = v_0\ket{0} + v_1\ket{1},
+        \end{equation*}
+        where $v_0$ and $v_1$ are complex amplitudes satisfying $|v_0|^2 + |v_1|^2 = 1$. The basis states $\ket{0}$ and $\ket{1}$ are 
+        represented as column vectors:
+        \begin{equation*}
+            \ket{0} = \begin{bmatrix}1 \\ 0\end{bmatrix}, \quad \ket{1} = \begin{bmatrix}0 \\ 1\end{bmatrix}.
+        \end{equation*}
+        For multi-qubit systems, the overall state is given by the tensor product of individual qubit states. For example, a two-qubit state is
+        \begin{equation*}
+            \ket{\psi} = v_{00}\ket{00} + v_{01}\ket{01} + v_{10}\ket{10} + v_{11}\ket{11}.
+        \end{equation*}
+
+        \subsection{Quantum Gates: Basic Building Blocks}
+        Quantum gates are unitary operations acting on one or more qubits. They generalize classical logic gates but can create 
+        superposition and entanglement, enabling quantum parallelism.
+
+        \paragraph{Single-Qubit Gates:}
+        \begin{itemize}
+            \item \textbf{Pauli-X (NOT) Gate:} Flips $\ket{0}$ to $\ket{1}$ and vice versa.
+            \begin{equation*}
+                X = \begin{bmatrix}0 & 1 \\ 1 & 0\end{bmatrix}
+            \end{equation*}
+            \item \textbf{Pauli-Y and Pauli-Z Gates:} $Y$ combines a bit and phase flip; $Z$ applies a phase flip to $\ket{1}$.
+            \begin{equation*}
+                Y = \begin{bmatrix}0 & -i \\ i & 0\end{bmatrix}, \quad Z = \begin{bmatrix}1 & 0 \\ 0 & -1\end{bmatrix}
+            \end{equation*}
+            \item \textbf{Hadamard (H) Gate:} Creates superposition. Applied to $\ket{0}$, it yields $(\ket{0} + \ket{1})/\sqrt{2}$.
+            \begin{equation*}
+                H = \frac{1}{\sqrt{2}}\begin{bmatrix}1 & 1 \\ 1 & -1\end{bmatrix}
+            \end{equation*}
+            \item \textbf{Phase Gates:} modifies the phase of the quantum state, but the measurement probabilities stay.
+            \begin{equation*}
+                P(\varphi) = \begin{bmatrix} 1 & 0 \\ 0 & e^{i\varphi} \end{bmatrix}
+            \end{equation*}
+            \item \textbf{Rotation Gates:} $R_x(\theta)$, $R_y(\theta)$, and $R_z(\theta)$ rotate the qubit state around the respective axes by 
+            angle $\theta$.
+            \begin{equation*}
+                R_{P_g}(\theta) = e^{-iP_g\theta/2} = \cos{\frac{\theta}{2}} \cdot 1 - i \sin{\frac{\theta}{2}} \cdot P_g
+            \end{equation*}
+        \end{itemize}
+
+        \paragraph{Multi-Qubit Gates:}
+        \begin{itemize}
+            \item \textbf{SWAP Gate:} Exchanges the states of two qubits.
+            \begin{equation*}
+               Swap = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ \end{bmatrix} 
+            \end{equation*}
+            \item \textbf{CNOT (Controlled-NOT) Gate:} A two-qubit gate that flips the target qubit if the control qubit is $\ket{1}$. 
+            Essential for generating entanglement.
+            \begin{equation*}
+                CNot = \begin{bmatrix} 1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 0 & 1 \\ 0 & 0 & 1 & 0 \\ \end{bmatrix}
+            \end{equation*}
+            \item \textbf{Toffoli (CCNOT) Gate:} A three-qubit gate; flips the third (target) qubit if both control qubits are $\ket{1}$. 
+            Important for universal reversible computation and error correction.
+            \begin{equation*}
+                Toffoli = \begin{bmatrix} 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+                    0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\ 0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 \\ 
+                    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\ 
+                    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\ 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\ \end{bmatrix}
+            \end{equation*}
+        \end{itemize}
+        Quantum gates are represented as unitary matrices. A gate acting on $n$ qubits is a $2^n \times 2^n$ unitary matrix.
+
+        \subsection{Quantum Circuits}
+        A quantum circuit is a sequence of quantum gates applied to qubits, typically followed by measurement. Circuits are often depicted 
+        as diagrams, with qubits as horizontal lines and gates as symbols acting on these lines. For example, the circuit for creating a 
+        Bell state applies a Hadamard gate to the first qubit, followed by a CNOT with the first as control and the second as target, as 
+        seen in the figure below~\ref{fig:Entangling_circuit}.
+
+        \begin{figure}[ht]
+        \centering
+        \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{pics/entangling.png}
+        \caption{Entangling circuit}
+        \label{fig:Entangling_circuit_A}
+        \end{subfigure}%
+        \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=0.85\linewidth]{pics/entangling_results.png}
+        \caption{Result of circuit measurement}
+        \label{fig:Entangling_circuit_B}
+        \end{subfigure}
+        \caption{Example circuit, resulting in $\hat{U}\ket{00} \rightarrow \frac{1}{\sqrt{2}}(\ket{00} + \ket{11})$. 
+        \textcolor{magenta}{Later it will be changed up to make it fit with the overall color scheme etc, right now it is a placeholder}}
+        \label{fig:Entangling_circuit}
+        \end{figure}
+
+        The action of a circuit on an initial state $\ket{\psi_0}$ is a sequence of unitary transformations:
+        \[
+        \ket{\psi_{\text{final}}} = U_k \cdots U_2 U_1 \ket{\psi_0},
+        \]
+        where each $U_i$ is a quantum gate.
+
+        \subsection{Measurement in Quantum Mechanics}
+
+        A measurement is the testing or manipulation of a physical system to yield a numerical result. In quantum mechanics it is when 
+        a quantum state collapses to a classical outcome. In the computational basis, measuring a qubit in state $\ket{a} = v_0\ket{0} + v_1\ket{1}$ 
+        yields $\ket{0}$ with probability $|v_0|^2$ and $\ket{1}$ with probability $|v_1|^2$.
+
+        For multi-qubit systems, measurement projects the state onto one of the basis vectors $\ket{k}$, with probability $|v_k|^2$. 
+        The outcome is inherently probabilistic, a fundamental departure from classical computation.
+
+        \paragraph{Entanglement and Measurement:}
+        Measurement on one qubit of an entangled pair instantaneously determines the outcome of the other, a phenomenon with no classical 
+        analog. For example, measuring one qubit of the Bell state $(\ket{00} + \ket{11})/\sqrt{2}$ collapses the other qubit to the 
+        same value, although causality must be preserved, hence the no communication theorem should be obeyed~\cite{No_comm_theor}.
+        It will be utilized in my implementation to enable backpropagation as a learning procedure.
+
+    \section{Amplitude Amplification: Theory and Practice}
+    \label{sect:QSA_AA}
+    Amplitude amplification is a quantum algorithmic technique that generalizes Grover's search~\cite{Grover}, providing a quadratic 
+    speedup for the identification or sampling of `good' states in a large, unstructured search space. The power of amplitude 
+    amplification lies in its ability to systematically increase the probability amplitude associated with desirable outcomes, while 
+    keeping the state space normalized, making it a central primitive for quantum-enhanced sampling in machine learning.
+
+        \subsection{Grover’s Algorithm and Generalizations}
+
+        Grover’s algorithm is the canonical example of amplitude amplification. In the classical setting, searching for a marked item in an 
+        unsorted database of size $N$ requires, on average, $O(N)$ queries, as with random selection, each and every item would have a 
+        $\frac{1}{N}$ probability of finding. Grover’s quantum approach reduces this to $O(\sqrt{N})$ by exploiting quantum superposition 
+        and entanglement.
+
+        The algorithm operates in an $N$-dimensional Hilbert space $\mathcal{H}$, where each basis state $\ket{k}$ represents a possible 
+        solution. A Boolean oracle function $\chi: \{0,1\}^n \rightarrow \{0,1\}$ identifies `good' states. The oracle operator $\mathbf{O}$ 
+        applies a phase flip to these states, while the diffusion operator $\mathbf{D}$ amplifies their amplitudes.
+
+        Brassard et al.~\cite{Brassard_2002} extended Grover’s idea to arbitrary initial states and general quantum algorithms, formalizing the amplitude amplification operator:
+        \begin{equation*}
+        \mathbf{Q} = -\mathcal{A} \mathbf{B}_0 \mathcal{A}^{-1} \mathbf{B}_\chi
+        \end{equation*}
+        where $\mathcal{A}$ prepares the initial state, $\mathbf{B}_\chi$ flips the phase of good states, and $\mathbf{B}_0$ flips the phase of the all-zero state. Repeated application of $\mathbf{Q}$ rotates the quantum state in the two-dimensional subspace spanned by the good and bad components, exponentially increasing the probability of measuring a good state.
+
+        \subsection{Oracle and Diffusion Operator Design}
+
+        The effectiveness of amplitude amplification hinges on the careful design of the oracle and diffusion operators.
+
+        \paragraph{Oracle Operator $\mathbf{O}$:}
+        The oracle is a unitary operator that marks the set of good states by flipping their phase. For a basis state $\ket{k}$, in $\mathcal{S} := \{\ket{k}\}_{k=0}^{N-1}$,
+        \begin{equation*}
+        \mathbf{O} \ket{k} = (-1)^{\chi(k)} \ket{k}
+        \end{equation*}
+        where $\chi(k) = 1$ for good states and $0$ otherwise. In practical terms, the oracle is implemented as a quantum circuit that 
+        evaluates the Boolean function $\chi$ and applies a controlled-$Z$ or multi-controlled Toffoli gate to flip the phase of the target states. 
+        For simple logical connectives, such as AND or OR, the circuit construction is straightforward. For more complex constraints, the circuit 
+        depth increases, but the principle remains the same: the oracle must be a reversible, unitary operation that encodes the solution set 
+        into phase flips.
+
+        \paragraph{Diffusion Operator $\mathbf{D}$:}
+        The diffusion operator, or “inversion about the mean,” amplifies the amplitudes of the marked states. For an initial state 
+        $\ket{\psi} = \mathcal{A}\ket{0}$, the diffusion operator is
+        \begin{equation*}
+        \mathbf{D} = 2\ket{\psi}\bra{\psi} - \mathbb{I}
+        \end{equation*}
+        This operator reflects the quantum state about the initial state vector. In the special case where $\ket{\psi}$ is the uniform superposition, $\mathbf{D}$ can be implemented by Hadamard gates, a phase flip on $\ket{0}$, and another round of Hadamards. For non-uniform initial states, the diffusion operator is constructed by applying the inverse of the state preparation circuit, a phase flip on $\ket{0}$, and then re-applying the state preparation.
+
+        \paragraph{Geometric Interpretation:}
+        The interplay between the oracle and diffusion operators can be visualized as a sequence of reflections in a two-dimensional subspace. 
+        With a projection operator emerging from the definition of $\mathbf{O}$;\
+        \begin{equation*}
+            \mathcal{P} := \sum_{\chi(k) = 1} \ket{k}\bra{k}
+        \end{equation*} 
+        defining the good and bad subspaces respectively:
+        \begin{align*}
+            \mathcal{H}_G := Im(\mathcal{P}) = span\{ \ket{k} \in \mathcal{S}_{op} \; | \;\chi(k) = 1\}
+            \\
+            \mathcal{H}_B := Ker(\mathcal{P}) = span\{ \ket{k} \in \mathcal{S}_{op} \; | \;\chi(k) = 0\}
+        \end{align*} 
+        If we adopt the convention of $\sum'$ for summation over the solution states, and $\sum''$ for summation over the non-solutions, we can define normalized states as such:
+        \begin{align*}
+            \ket{x_G} = \sqrt{\frac{1}{M}} \sum'_x \ket{x} 
+            \\
+            \ket{x_B} = \sqrt{\frac{1}{N - M}} \sum''_x \ket{x}
+        \end{align*}
+        where \textbf{N} is the number of states ($2^n$ for n qubits) and \textbf{M} is the number of solution states. Thus the initial state can be realized as:
+        \begin{equation*}
+            \ket{\psi} = \sqrt{\frac{N - M}{N}} \ket{x_B} + \sqrt{\frac{M}{N}}\ket{x_G} = \cos\left( \frac{\alpha}{2} \right) \ket{x_B} + \sin\left( \frac{\alpha}{2} \right)\ket{x_G}
+        \end{equation*} 
+        This is then a two-dimensional subspace spanned by the vectors $\ket{x_G}$ and $\ket{x_B}$ is stable under the action of $\mathbf{Q}$.
+        The oracle reflects the state about the bad subspace, while the diffusion operator reflects about the initial state.
+
+        The composition of these two reflections is a rotation by $\alpha$ towards the good subspace. This geometric process underlies 
+        the quadratic speedup of amplitude amplification.
+
+
+        \subsection{Parameter Update Interpretation}
+        \label{subsect:QSA_AA_paramupdate}
+
+        The action of the amplitude amplification operator $\mathbf{Q}$ can be interpreted as two reflections -- once over the bad states, 
+        and then over the average amplitude of our states (i.e. the register itself in the two-dimensional subspace) -- which geometrically is a rotation in the 
+        two-dimensional subspace of the Hilbert space spanned by the projections of the initial state onto the good and bad subspaces. The initial state can be 
+        written as
+        \begin{equation*}
+        \ket{\psi} = \sin \left( \frac{\alpha}{2} \right)\ket{\psi_g} + \cos \left( \frac{\alpha}{2} \right)\ket{\psi_b}
+        \end{equation*}
+        where $\ket{\psi_g}$ and $\ket{\psi_b}$ are normalized projections onto the good and bad subspaces respectively, ultimately resulting in
+        the 2 dimensional subspace, which I will refer to as $H_{\psi}$. 
+        The result of said rotations in $H_{\psi}$ can be depicted as seen in figure~\ref{fig:Grover_rot_diag}.
+        As the state is stable under the action of $\mathbf{Q}$, the rotaion angle of $\frac{\alpha}{2}$ is given. Thus, 
+        Each application of $\mathbf{Q}$ rotates the state by $2\cdot \frac{\alpha}{2} = \alpha$, such that after $k$ iterations,
+        \begin{equation*}
+        \mathbf{Q}^k \ket{\psi} = \sin\left((2k+1)\frac{\alpha}{2} \right)\ket{\psi_g} + \cos\left((2k+1)\frac{\alpha}{2} \right)\ket{\psi_b}
+        \end{equation*}
+        
+        The probability of measuring a good state thus increases quadratically with the number of iterations, reaching a maximum when $(2k+1)\frac{\alpha}{2} \approx \pi/2$,
+        resulting in:
+        \begin{equation}
+            k = \lfloor \frac{\pi}{4}\sqrt{\frac{1}{P_g}} \rfloor
+        \label{eq:needed_k}
+        \end{equation}
+        meaning, that after exactly $k$ rotations we will have a maximum amplification of our state. This repeated applications, each resulting in 
+        a rotation with angle $\alpha$, can be seen in a 3-dimensional representation in figure~\ref{fig:Grover_rot_mine}, where the axes are the $bad$ ($\ket{\psi_b}$)
+        and $good$ ($\ket{\psi_g}$) states, spanning $H_{\psi}$.
+
+        \begin{figure}
+        \centering
+        \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{pics/grover_rot.png}
+        \caption{Grover rotation in the 2 dimensional subspace $H_{\psi}$}
+        \label{fig:Grover_rot_diag}
+        \end{subfigure}%
+        \begin{subfigure}{.5\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{pics/Quantum State Rotation 3D.png}
+        \caption{ Repeated applications in the complete state space}
+        \label{fig:Grover_rot_mine}
+        \end{subfigure}
+        %\caption{Amplitude amplification bz repeated Grover rotations}
+        \label{fig:Grover_rot}
+        \end{figure}
+
+
+        \subsection{Scalability and Simulator Limitations}
+        The scalability of amplitude amplification is determined by the complexity of the oracle and diffusion operators, as well as the 
+        available quantum resources. For simple logical connectives and small models, both operators can be implemented with shallow 
+        circuits, and the algorithm can be simulated efficiently on classical hardware. For more complex logical formulas or high-dimensional 
+        models, the circuit depth and qubit count increase, and classical simulation becomes intractable.
+
+        In this work, quantum simulations were performed for circuits up to 25 qubits using the Qiskit Aer simulator, balancing accuracy and 
+        computational feasibility. For larger problem sizes, efficient simulation may require tensor network-based methods or access to real 
+        quantum hardware. The quadratic speedup of amplitude amplification remains, but practical implementation is constrained by current 
+        hardware and software limitations.
+    
+    \section{From Tensor Networks to Quantum Circuits}
+    \label{sect:TN2Quantum}
+        Tensor networks unify the representation of probabilistic models with quantum state encoding, as probabilistic models can be represented~\ref{subsect:Foundations_TN_ProbNetw},
+        while quantum states, such as matrix product states (MPS) and projected entangled pair states (PEPS) are inherently represented as tensor networks~\cite{TNforQC}.
+        Therefore tensor networks provide a unified framework for representing and manipulating probabilistic models, as both probabilistic algorithms (e.g.inference),
+        and quantum algorithms (such as Amplitude amplification) operate on these networks, providing a pathway to quantum-enhanced sampling.
+
+
+            
+        \subsection{Quantum Circuit Construction}
+            To map a tensor network to a quantum circuit, each tensor (or slice) is encoded as a quantum state and/or a set of parameterized 
+            quantum gates. The contraction of tensors, which in the classical setting corresponds to summing over shared indices, is implemented 
+            in the quantum setting by entangling qubits or applying multi-qubit gates. For example, in a network where each variable $X_i$ 
+            is binary, a qubit is allocated for each variable, and the entries of the tensor slices determine the amplitudes of basis 
+            states, which can be applied as parameterized gate-sets.
+
+            The construction proceeds as follows:
+            \begin{enumerate}
+                \item \textbf{Initialization}: Prepare the quantum register in a reference state (e.g., $\ket{0}^{\otimes n}$).
+                \item \textbf{State Preparation}: Apply a sequence of single- and multi-qubit gates to encode the tensor slices, such that 
+                the resulting quantum state amplitudes correspond to the (normalized) entries of the target tensor network. For instance, 
+                parameterized rotation gates ($R_X$, $R_Y$, $R_Z$) can be used to set the amplitudes according to the tensor entries, while 
+                Hadamard gates may be used to create initial superpositions 
+                \item \textbf{Entanglement}: Use CNOT and controlled gates to implement contractions between slices, reflecting dependencies 
+                in the original probabilistic model. In my model later, entanglement will be inherently present due to the nature of the encoding,
+                with multi-qubit entangling gates (Toffoli) being frequently utilized over ancillas (i.e. shared indices of the Tensor Network).
+            \end{enumerate}
+
+            This mapping is particularly efficient when the tensor network has low rank or sparse structure, as is often the case for 
+            models with strong conditional independence. In such scenarios, the number of required gates and the circuit depth can be kept 
+            polynomial in the number of variables, making the approach feasible for near-term quantum devices~\cite{Ran_2020}.
+
+        \subsection{Gate Decomposition and Resource Estimates}
+
+            The quantum circuit depth and resource requirements depend on the structure and rank of the underlying tensor network:
+            \begin{itemize}
+                \item \textbf{Qubit Count}: Each variable in the model typically requires one qubit for binary variables (or 
+                $\lceil \log_2 d_i \rceil$ qubits for $d_i$-ary variables) as well as one auxiliary qubit (i.e. ancilla qubit) for connecting the 
+                cliques of probabilistic model representations~\ref{subsect:Foundations_TN_ProbNetw}.
+                \item \textbf{Gate Complexity}: The number of gates scales with the number of tensor slices and the connectivity of the network. 
+                For a CP decomposition of rank $r$ over $n$ variables, the circuit requires $\mathcal{O}(rn)$ parameterized gates~\cite{CPdecomp}.
+                \item \textbf{Circuit Depth}: For chain-like (MPS) or tree-like (TTN) tensor networks, the depth is $O(n)$ or $O(\log n)$, respectively.
+                %\item \textbf{Noise Considerations}: Shallow circuits and sparse connectivity are advantageous for near-term quantum devices, as they minimize decoherence and gate errors.
+            \end{itemize}
+
+            In summary, the mapping from exponential family distributions to tensor networks, and subsequently to quantum circuits, enables scalable quantum sampling for complex probabilistic models. This approach exploits both the structure of the underlying model and the computational power of quantum devices, providing a pathway to quantum advantage in probabilistic inference and machine learning.
+
+%\section{Noise and Error Modeling}
+
+%\subsection{Effect of Noise on Quantum Sampling}
+
+%Quantum circuits are inherently sensitive to noise and decoherence, which can degrade the fidelity of amplitude amplification and reduce the probability of successfully measuring a good state. Common noise sources include gate errors, measurement errors, and qubit decoherence. Simulations incorporating realistic noise models show that amplitude amplification remains effective up to certain noise thresholds, but error accumulation can significantly impact performance for deeper circuits or larger systems. Understanding these effects is crucial for designing error-resilient circuits and for resource estimation on near-term quantum devices.
+
+
+\chapter{Experimental Evaluation}
+
+    \section{Use Case: Logical Connective Sampling}
+
+        \subsection{Problem Setup}
+            In this section, we consider a representative logical connective as the target for quantum sampling. The problem is defined as 
+            follows: given a logical formula \textbf{F} (e.g., a conjunction or disjunction of $n$ Boolean variables), our goal is to efficiently 
+            sample satisfying assignments (`good' states) from the exponentially large ($2^n$) space of all possible assignments.
+            For concreteness, let us focus on a n-qubit system encoding a logical connective such as seen in the previous example~\ref{eq:Logical_conn_ex}, 
+            which for the sake of the example will be 6 variables (mapped as qubits), with 19 connectives (ancillas). The set 
+            of `good' states, $\mathcal{G}$, consists of all assignments that satisfy the formula. The initial probability of selecting a good 
+            state from the uniform distribution is $P_g = M/N = |\mathcal{G}|/2^n$, in the case of my example shown, exactly $P_g = M/N = 1/2^6$.
+            Our aim is to amplify $P_g$ to near-unity using quantum amplitude amplification.
+
+        \subsection{Mapping Logical Formula to a Quantum state}
+            The logical formula \textbf{F} can be encoded as an exponential family distribution as per~\ref{subsect:Foundations_ExpFam_mapping}:
+            \begin{equation}
+                p(x) = \frac{1}{Z} \exp\left\{ \theta \cdot \hat{\mathrm{1}}[\textbf{F}] \right\}
+            \end{equation}
+            where $\hat{\mathrm{1}}[\textbf{F}]$ is the indicator function for the formula, serving as the sufficient statistics for the 
+            exponential family, whilst $\theta$ is the canonical parameter, a scalar in our case, and $Z$ is the normalization constant.
+            \\
+            I have defined the weight added to the formula be:
+            \begin{itemize}
+                \item unit, whenever the indicator function gives a result of `FALSE'/0
+                \item $e^{\theta}$, whenever it is `TRUE'/1
+            \end{itemize}
+
+            Using this representation, $\theta$ can be understood as the weight of the truth value of the formulas, coming directly from the sufficient 
+            statistics being the indicator function of the logical formula, and therefore the weights being:
+            \begin{itemize}
+                \item $p(x = 1) = \frac{Me^{\theta}}{(N - M) + Me^{\theta}} = P_g$ 
+                \item $p(x = 0) = \frac{N-M}{(N - M) + Me^{\theta}} = P_b$
+            \end{itemize}
+            with $N = 2^n$ as all the possible states, $M$ of which are `Good', i.e. results in the indicator function giving value of 1.
+            This way it gives us a great starting point as for $\theta=0$, this reduces to the uniform distribution, and as $\theta \to \infty$, 
+            the distribution concentrates on the satisfying assignments. Thus our expectation is solely this, that when the locical formula is mapped
+            to a quantum circuit, we start from a uniform distribution of variables, and slowly amplify the probability of the `Good' states,
+            only the canonical parameter of the formula will change, as it will diverge to infinite values, whilst the sufficient statistics should remain
+            the same, esentially keeping us in the same exponential family with finely tuned variables, to match our amplified quantum states.
+            \\
+            Then we need to apply slice decomposition on the defined exponential family to map each intricate connection to the quantum circuit at hand.
+            Following the section~\ref{subsect:Foundations_EXP2TN_slice} we can slice the logical formula by each connective, thus making it straightforward
+            to iteratively have every detail embedded into our initial state $\ket{\psi}$, prepared by the unitary $\mathcal{A}$, the direct result of the decomposition.
+
+        \subsection{Amplitude Amplification for Exponential Families}
+        Our expectation is that only the canonical parameter of the formula will change, as it will diverge to infinite values, whilst the sufficient statistics should remain
+        the same, esentially keeping us in the same exponential family with finely tuned variables, to match our amplified quantum states.
+        As when the locical formula is mapped to a quantum circuit, we start from a uniform distribution of variables, and slowly amplify 
+        the probability of the `Good' states, thus changing the probability of finding such.
+        
+        Mathematically, if the initial probability of a good state is $P_{g0}$, then after $k$ applications of amplitude amplification, the probability becomes $P_k = \sin^2\left((2k+1)\frac{\alpha}{2}\right)$, 
+        where $\frac{\alpha}{2} = \arcsin(\sqrt{P_{g0}})$, is the angle of the state in $H_{\psi}$. In exponential family terms, this corresponds to a shift in the canonical parameter:
+        \begin{align}
+            \theta_k &= \ln\left(\frac{(1-P_{g0})P_k}{P_{g0}(1-P_k)}\right) \\
+            \intertext{which can be rewritten as:}
+            \theta_k &= \ln \left( \frac{P_k}{1 - P_k} \right) - \ln \left( \frac{P_{g0}}{1 - P_{g0}} \right)
+            \label{eq:Can_par_change}
+        \end{align}
+        So $\theta_k$ is just the difference of log-odds (i.e. \textit{logit}, the inverse of the \textit{sigmoid}) between the current probability $P_k $and the initial probability $P_{g0}$.
+
+        This provides a direct link between quantum amplitude amplification and classical parameter updates in probabilistic models.
+
+        \paragraph{Circuit Construction:}
+        In practice, the amplitude amplification circuit is constructed as follows:
+        \begin{enumerate}
+            \item Prepare the initial state $\ket{\psi}$ using the unitary $\mathcal{A}$.
+            \item Apply the oracle $\mathbf{O}$.
+            \item Apply the diffusion operator $\mathbf{D}$.
+            \item Repeat the sequence $\mathbf{Q} = \mathbf{D}\mathbf{O}$ for the optimal number of iterations.
+            \item Measure the final state in the computational basis.
+        \end{enumerate}
+        The oracle and diffusion operators are implemented as modular subroutines, allowing for flexibility in defining different logical 
+        connectives or constraints.
+
+
+        \subsection{Quantum Circuit Implementation}
+            The exponential family representation is mapped to a quantum circuit through the slice decomposition of its Tensor network representation.
+            
+            
+            as follows:
+            \begin{itemize}
+                \item \textbf{State Preparation:} Apply Hadamard gates to all qubits to create a uniform superposition over all $2^n$ 
+                states, and then apply CNOT/Toffoli gates to encode the logical connectives, which are projected to an ancilla.
+                \item \textbf{Oracle Construction:} Implement an oracle $O_\phi$ that flips the phase of the `good' states (those satisfying 
+                $\phi$). This is realized using a equence including $Z$ gates corresponding to the binary structure of $\phi$.
+                \item \textbf{Diffusion Operator:} Construct the diffusion operator $D$ as an inversion about the mean, typically using 
+                the inversible state preparation unitary $\mathcal{A^+}$, a multi-qubit $Z$ gate on 
+                $\ket{0}^{\otimes n}$, and another round $\mathcal{A}$.
+                \item \textbf{Amplitude Amplification:} Apply the operator $Q = D O_\phi$ for $k$ iterations, where $k$ is chosen to 
+                maximize the probability of measuring a good state~\ref{subsect:QSA_AA_paramupdate}.
+            \end{itemize}
+            The pseudocode for each part of the procedure can be seen in \textcolor{magenta}{reference appendix for pseudocode}.
+            \iffalse
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.7\textwidth]{quantum_circuit_example.pdf}
+                \caption{Quantum circuit implementing amplitude amplification for a 6-qubit logical connective. The oracle marks `good' 
+                states, and the diffusion operator amplifies their amplitudes.}
+                \label{fig:aa_circuit}
+            \end{figure}
+            \fi
+
+        \subsection{Results and Analysis}
+            After $k$ rounds of amplitude amplification (so one additional turn for overrotation after near perfect amplification), the 
+            probability of measuring a good state increases from $P_0$ to $P_k = \sin^2((2k+1)\alpha)$, 
+            where $\alpha = \arcsin(\sqrt{P_0})$. The canonical parameter of the exponential family updates as seen in eq~\ref{eq:Can_par_change}.
+
+            The said changes in probabilities on the given logical formula can be seen in the following figures:
+
+            \begin{figure}[H]
+            \centering
+
+            \begin{subfigure}{\textwidth}
+            \includegraphics[width=\linewidth]{pics/overrotation_final6.png}
+            \caption{Changes in the probability of measuring TRUE value on the logical connective}
+            \label{fig:AA_final}
+            \end{subfigure}
+
+            \medskip % insert a bit of vertical whitespace
+            \begin{subfigure}{\textwidth}
+            \includegraphics[width=\linewidth]{pics/overrotation_variable6.png}
+            \caption{Changes in the input values resulting in given $P_{\mathcal{G}}$}
+            \label{fig:AA_variable}
+            \end{subfigure}
+
+            \caption{Series of Grover rotations on a given logical formula}
+            \label{fig:AA_log_formula}
+
+            \end{figure}
+
+            We can see that we have achieved near perfect amplification after 6 steps, which is in line with our mathematical framework, given in~\ref{subsect:QSA_AA_paramupdate},
+            that $k = \lfloor \frac{\pi}{4}\sqrt{\frac{1}{P_g}} \rfloor = \lfloor \frac{\pi}{4}\sqrt{\frac{64}{1}} \rfloor = 6$. The fifth step, as expected,
+            results in a lower probability, meaning that we have overrotated.
+
+            The changes in angle and canonical parameters are:
+            \begin{figure}[H]
+            \centering
+
+            \begin{subfigure}{0.65\textwidth}
+            \includegraphics[width=\linewidth]{pics/can_prob.png}
+            \label{fig:can_PROB}
+            \end{subfigure}
+
+            \medskip % insert a bit of vertical whitespace
+            \begin{subfigure}{0.75\textwidth}
+            \includegraphics[width=\linewidth]{pics/can_angle.png}
+            \label{fig:can_ANG}
+            \end{subfigure}
+
+            \caption{Series of Grover rotations on a given logical formula}
+            \label{fig:can_changes}
+
+            \end{figure}
+
+            Where we can see the expected shootout in the canonical parameters of the exponential family. The log-odds function, with which we define $\theta_k$,
+            has vertical asymptotes at $P = 0$ and $P = 1$, with the added change in behaviour coming from the non-monotonic, but sinusoidal change of $P_k$.
+            This understates those explosive `jumps', as the function reacts extremely to values close to 0 or 1, which shows us that with near perfect amplification,
+            when $P_{\mathcal{G}} \rightarrow 1$, we have a local maxima in the canonical parameter.
+            Furthermore, this shows that the sampling procedure remains within the same exponential family, but with an updated parameter $\theta_k$ reflecting 
+            the amplified probability. The updated $\theta_k$ can be enumerated as:
+
+            \begin{table}[h]
+                \centering
+                \begin{tabular}{|c|c|c|}
+                    \hline
+                    Iteration ($k$) & $P_k$ & $\theta_k$ \\
+                    \hline
+                    0 & $0.016$ & $0$ \\
+                    \hline
+                    1 & $0.134$ & $1.543$ \\
+                    \hline
+                    2 & $0.344$ & $2.763$ \\
+                    \hline
+                    3 & $0.592$ & $3.781$ \\
+                    \hline
+                    4 & $0.817$ & $4.905$ \\
+                    \hline
+                    5 & $0.963$ & $6.668$ \\
+                    \hline
+                    6 & $0.997$ & $9.215$ \\
+                    \hline
+                    7 & $0.908$ & $5.698$ \\
+                    \hline
+                \end{tabular}
+                \caption{Amplification of probability and exponential family parameter over iterations.}
+                \label{tab:amplification_results}
+            \end{table}
+
+            \noindent
+            \textbf{Interpretation:} The amplitude amplification procedure efficiently concentrates probability mass on the set of 
+            satisfying assignments, achieving quadratic speedup over classical rejection sampling. Importantly, the process preserves the 
+            exponential family structure of the distribution, with the canonical parameter $\theta$ evolving according to the 
+            amplification dynamics. This demonstrates the compatibility of quantum amplitude amplification with classical probabilistic 
+            modeling frameworks.
+
+    \section{Generalization and Scalability}
+    \iffalse
+    The approach generalizes to larger logical connectives and higher-dimensional systems. For $n$-qubit systems with more complex formulas, 
+    the mapping to exponential families and tensor networks remains valid, and the quantum circuit construction follows the same principles. 
+    Scalability is determined by the complexity of the oracle and the available quantum resources. Simulations up to 25 qubits demonstrate 
+    robust amplification, with noise and circuit depth being the primary limiting factors for near-term quantum hardware.
+    \fi
+
+    \textcolor{red}{Put the more dimensional problem here}
+    
+\chapter{Benchmarking and Comparative Analysis}
+
+    \section{Classical Sampling Methods}
+        Sampling from complex probability distributions is a foundational task in statistics and machine learning, enabling probabilistic 
+        inference, uncertainty quantification, and model training~\ref{sect:Intro_Challanges}. Classical sampling methods primarily include the brute-force approach,
+        rejection sampling and Markov Chain Monte Carlo (MCMC) methods, each with distinct strengths and limitations~\cite{Ghojogh2020}.
+        
+        \subsection{Brute-Force Enumeration}
+            Brute force sampling, also known as exhaustive enumeration, is the most direct approach to sampling from a probability distribution: 
+            it systematically generates and evaluates every possible state in the sample space. For a discrete distribution over $N$ states, this 
+            means explicitly listing all $N$ configurations, computing their probabilities, and either selecting samples according to their 
+            weights or simply iterating through all possibilities.
+
+            While conceptually simple and guaranteed to be exact, brute force methods are only feasible for very small systems. The time 
+            and memory complexity scale as $\mathcal{O}(N)$, where $N$ is the total number of possible states. For problems involving $n$ 
+            binary variables, $N = 2^n$, so the cost grows exponentially with $n$—a classic example of the `curse of dimensionality' or 
+            combinatorial explosion, resulting in our case $\mathcal{O}(2^n)$~\cite{GFGBruteForce}.
+
+            Brute force enumeration is sometimes used as a baseline for validating other sampling algorithms or for very small models. 
+            However, for most real-world applications, the exponential scaling renders brute force approaches intractable. Even modest 
+            increases in $n$ quickly make the approach impractical, motivating the use of more sophisticated methods such as rejection 
+            sampling, MCMC, or quantum algorithms.
+
+        \subsection{Rejection Sampling}
+            Rejection sampling is a fundamental technique for generating samples from a target distribution $f(x)$ when direct sampling is 
+            impractical. The method uses a proposal distribution $g(x)$, from which sampling is easy, and accepts or rejects each candidate 
+            based on the ratio $f(x)/(M g(x))$, where $M$ is a constant such that $M \geq \sup_x p(x)/q(x)$ for all $x$. The efficiency of 
+            rejection sampling heavily depends on the choice of the proposal distribution; if $g(x)$ poorly approximates $f(x)$, the 
+            acceptance rate drops and the method becomes computationally inefficient~\cite{Lee2025}. The coice of said proposal distribution will define the $M$
+            value, from which a suitable acceptance rate can be deduced. Despite its simplicity, rejection sampling can be wasteful for 
+            high-dimensional or rare-event scenarios, as the expected number of trials to obtain one valid sample scales as $\mathcal{O}(M)$. 
+            In rare events, where $P_g$ -- the probability of a `good' state -- is low, matched with a proposal distribution resulting in a 
+            high M value $\approx \frac{1}{P_g}$, resulting in a computational complexity of $\mathcal{O}(\frac{1}{P_g})$, which just like with brute-force 
+            algorithms, is becoming prohibitive for rare events ($P_g \ll 1$). With an easy-to-sample distribution, or a suitable proposal one, the value for 
+            M will be much lower, and the acceptance rate higher. This means in the end a well built rejection sampling can achieve over the previously 
+            defined complexity, albeit only by a constant multiplier. 
+
+        \subsection{Markov Chain Monte Carlo (MCMC)}
+            MCMC methods, such as the Metropolis-Hastings algorithm and Gibbs sampling, construct a Markov chain whose stationary distribution 
+            is the target distribution~\cite{PMC5862921}. By sequentially generating correlated samples, MCMC can explore complex, 
+            high-dimensional distributions even when direct sampling or rejection sampling is infeasible. The key advantage of MCMC is its 
+            flexibility: it only requires the ability to compute the (unnormalized) density of the target distribution. However, MCMC methods 
+            can suffer from slow mixing, especially in multimodal or high-dimensional spaces, and require careful tuning to ensure convergence 
+            and independence of samples.
+            \\
+            MCMC constructs a Markov chain converging to $p(x)$. For Gibbs sampling, with $N$ being the number of possible states:
+            \begin{itemize}
+                \item Mixing time scales as $\mathcal{O}(e^{N})$ for multimodal distributions
+                \item Per-iteration cost: $\mathcal{O}(N)$ for local updates
+                \item Suffers from slow mixing in high dimensions due to metastability
+            \end{itemize}
+            So while classical sampling methods such as brute-force methods, rejection sampling and MCMC are widely used and well-understood, neither method 
+            achieves better than linear scaling in $1/P_g$ or exponential in $N$, thus they face significant challenges in the context 
+            of high-dimensional, structured, or rare-event distributions.
+
+    \section{Quantum vs. Classical: Asymptotic Speedup}
+        Quantum amplitude amplification achieves a quadratic improvement, requiring only $\mathcal{O}(1/\sqrt{p_g})$ queries. This follows 
+        from Grover's theorem and its generalization to amplitude amplification:
+        \begin{theorem}[Brassard et al. 2000]
+        Given an initial state $A|0\rangle$ with good-state probability $p_g = \sin^2\alpha$, after $k = \lfloor \pi/(4\alpha) \rfloor$ 
+        iterations of $Q = -AS_0A^\dagger S_\chi$, the probability of measuring a good state satisfies:
+        \begin{equation}
+        P_{\text{good}} = \sin^2((2k+1)\alpha) \geq 1 - p_g
+        \end{equation}
+        \end{theorem}
+
+        \begin{proof}
+        The state evolution under $Q$ performs a rotation in a 2D subspace spanned by $|\psi_g\rangle$ and $|\psi_b\rangle$~\ref{subsect:QSA_AA_paramupdate}. 
+        After $k$ iterations:
+        \begin{equation*}
+        Q^k A|0\rangle = \sin((2k+1)\alpha)|\psi_g\rangle + \cos((2k+1)\alpha)|\psi_b\rangle
+        \end{equation*}
+        Choosing $k = \lfloor \pi/(4\alpha) \rfloor$ yields $(2k+1)\alpha \in [\pi/2 - \alpha, \pi/2 + \alpha]$, giving $P_{\text{good}} \geq \cos^2\alpha = 1 - p_g$.
+        \end{proof}
+
+        This demonstrates that $\mathcal{O}(1/\sqrt{p_g})$ iterations suffice to amplify the success probability near 1, quadratically 
+        faster than classical rejection sampling.
+        \\
+        \textbf{Full Circuit Depth Analysis}
+            Although we see that the amplitude amplification achieves a quadratic improvement over classical algorithms, it is only the
+            'search' part of our procedure, and the quantum advantage must account for full circuit depth, not just oracle queries. 
+            Thus we need to include the state preparation unitaries as well:
+            \begin{itemize}
+                \item $D_A$: Depth of state preparation circuit
+                \item $D_O$: Depth of oracle implementation
+                \item $D_D$: Depth of diffusion operator
+            \end{itemize}
+            The total depth for $k$ iterations is:
+            \begin{equation}
+            D_{\text{total}} = D_A + k(D_O + D_D)
+            \end{equation}
+
+            Which in my implementation sums up to:
+            \begin{itemize}
+                \item Uniform preparation: $D_A = \mathcal{O}(n)$ (Hadamard gates + NOT/Toffoli gates for logical formula mapping)
+                \item Logical oracle: $D_O = \mathcal{O}(1)$ (utilizing the symmetry between $D_A$ and $D_D$)
+                \item Diffusion: $D_D = \mathcal{O}(n)$ (essentially overlapping with the state preparation unitary)
+            \end{itemize}
+            
+            \iffalse
+            \textcolor{magenta}{open up iffalse when I write the extensions for generic applications not only logical formulas}
+            and for typical implementations sums up to:
+            \begin{itemize}
+                \item Uniform preparation: $D_A = \mathcal{O}(1)$ (Hadamard gates)
+                \item Logical oracle: $D_O = \mathcal{O}(n)$ (for $n$-variable connectives)
+                \item Diffusion: $D_D = \mathcal{O}(n)$
+            \end{itemize}
+            \fi
+            Thus $D_{\text{total}} = \mathcal{O}(n/\sqrt{p_g})$, still linear in variables, preserving quadratic speedup.
+
+
+\section{Resource Estimation and Practical Feasibility}
+The choice of quantum hardware platform is a critical factor in translating theoretical quantum speedup into practical, 
+real-world performance. Different technologies offer distinct trade-offs in terms of gate speed, fidelity, connectivity,
+and scalability, all of which directly affect the feasibility and efficiency of implementing quantum algorithms, such as 
+the proposed sampling procedure.
+    \subsection{Platform proposal}
+    The selection of a quantum hardware platform should be guided by the specific requirements of the task at hand. For this 
+    thesis, the focus is on sampling from complex logical connectives and exponential family distributions. When 
+    evaluating platforms for such algorithms that -- with utilizing amplitude amplification, i.e. repeated Grover's algorithm -- 
+    require deep circuits and many multi-qubit entangling gates, key considerations include:
+
+    \begin{itemize}
+        \item \textbf{Gate Fidelity and Error Rates:} High-fidelity gates are essential to maintain coherence and ensure the 
+        reliability of sampling results, especially as circuit depth increases.
+        \item \textbf{Coherence Times:} Longer coherence times allow for more complex algorithms to run without significant 
+        decoherence, which is crucial for amplitude amplification and other iterative procedures.
+        \item \textbf{Qubit Connectivity:} All-to-all connectivity enables direct entanglement between any pair of qubits, 
+        reducing the need for SWAP gates and simplifying circuit compilation for highly non-local operations.
+        \item \textbf{Native Gate Set:} The availability of native multi-qubit gates or efficient decomposition of logical 
+        operations can greatly affect the overall circuit depth and execution time.
+        \item \textbf{Scalability:} The ability to scale up to larger numbers of qubits without a significant drop in 
+        performance is important for tackling high-dimensional sampling problems.
+    \end{itemize}
+
+    \vspace{1em}
+    \noindent
+    \textbf{Platform Selection Rationale}
+
+    While superconducting qubit platforms offer fast gate times and are widely accessible, their limited qubit connectivity (nearest neighbour) 
+    and shorter coherence times can become bottlenecks for deep or highly connected circuits. In contrast, trapped ion quantum computers 
+    provide several compelling advantages for this class of problems:
+    \textbf{Key advantages of trapped ion platforms:}
+    \begin{itemize}
+        \item \textbf{All-to-All Connectivity:} Eliminates the need for SWAP gates, allowing direct implementation of multi-qubit 
+        logical connectives and reducing compilation overhead.
+        \item \textbf{Superior Gate and Measurement Fidelity:} Minimizes cumulative error, making it feasible to execute longer 
+        circuits with high accuracy.
+        \item \textbf{Native support for multi-qubit gates:} Some platforms implement multi-qubit entangling gates directly, 
+        further reducing circuit depth for logical oracles and diffusion operators.
+        \item \textbf{Exceptionally Long Coherence Times:} Supports deep amplitude amplification sequences and complex sampling 
+        routines without significant loss of quantum information.
+        \item \textbf{Scalability:} Recent advances have demonstrated the ability to operate with dozens of qubits, with roadmaps 
+        to even larger systems.
+    \end{itemize}
+
+    So, although superconducting qubits have been the workhorse of many quantum computing experiments, trapped ion platforms are 
+    particularly well-suited for quantum sampling tasks that involve high circuit depth and complex logical structure. 
+    For these reasons, it is the platform, which poses as the most well-suited choice, while still being accessible enough, 
+    many instances being provided by individual companies and research groups. The following table details the relevant 
+    hardware specifications and performance characteristics of trapped ion quantum computers, providing a concrete foundation 
+    for resource estimation and benchmarking of the proposed quantum sampling algorithms. \cite{IonQ2024, Honeywell2024}
+
+        \begin{table}[ht]
+        \centering
+        \begin{tabular}{|l|c|}
+        \textbf{Parameter} & \textbf{Value} \\
+        \hline
+        Qubit connectivity & All-to-all \\
+        Single-qubit gate time ($t_g$) & 10-50 $\mu$s  \\
+        Two-qubit gate time & 100-250 $\mu$s \\
+        $T_1$ coherence time & $>10$ min \\
+        $T_2$ coherence time & $>1$ min  \\
+        Single-qubit gate fidelity & 99.995--99.999\%  \\
+        Two-qubit gate fidelity & 99.9--99.99\% \\
+        Readout fidelity & 99.5--99.9\%  \\
+        Qubit operating temperature & Room temperature  \\
+        \caption{State-of-the-art trapped ion hardware specifications (2025)}
+        \end{tabular}
+        \end{table}
+
+
+
+\subsection{Circuit Compilation and Scaling for $n$ Qubits}
+
+For a general $n$-qubit logical connective (with $N = 2^n$ states and one `good' state, $p_g = 1/N$):
+
+\begin{itemize}
+    \item \textbf{Oracle Implementation:}
+        \begin{itemize}
+            \item Depth $D_O = \mathcal{O}(1)$ for simple connectives or $\mathcal{O}(n)$ for general multi-controlled gates, but no SWAP overhead due to all-to-all connectivity.
+            \item Ancilla management: $\mathcal{O}(n)$ auxiliary qubits for intermediate results, as in other platforms.
+        \end{itemize}
+    \item \textbf{Diffusion Operator:}
+        \begin{itemize}
+            \item Depth $D_D = \mathcal{O}(1)$ for global operations, or $\mathcal{O}(n)$ for decomposed multi-controlled gates, again with no connectivity penalty.
+        \end{itemize}
+    \item \textbf{State Preparation:}
+        \begin{itemize}
+            \item Hadamard gates on all $n$ qubits (depth $D_A = 1$).
+        \end{itemize}
+    \item \textbf{Total resources per amplitude amplification iteration:}
+        \[
+        \text{Depth per iteration: } D_{\text{iter}} = D_A + D_O + D_D \approx 1 + 2n
+        \]
+        \[
+        \text{Qubits: } n + \mathcal{O}(n) \text{ (data + ancilla)}
+        \]
+\end{itemize}
+
+\noindent
+\textbf{Transpilation Considerations:}  
+Although some logical gates (e.g., Toffoli, multi-controlled $Z$) are not native to trapped ion hardware, all-to-all connectivity and high-fidelity two-qubit gates enable efficient transpilation. The absence of SWAPs and the possibility of direct multi-qubit entangling gates (e.g., Mølmer–Sørensen) mean that even transpiled circuits remain shallow compared to superconducting platforms for the same logical depth.
+
+\subsection{Quantum vs. Classical Runtime Scaling}
+
+For a target probability $p_g = 1/2^n$:
+
+\begin{itemize}
+    \item \textbf{Classical rejection sampling:}
+        \[
+        T_{\text{classical}} = \frac{1}{p_g} \cdot t_c = 2^n \cdot t_c
+        \]
+        where $t_c$ is the classical step time (e.g., $1$ ns).
+    \item \textbf{Quantum amplitude amplification:}
+        \[
+        T_{\text{quantum}} = \frac{1}{\sqrt{p_g}} \cdot D_{\text{iter}} \cdot t_g = 2^{n/2} \cdot (1 + 2n) \cdot t_g
+        \]
+        where $t_g$ is the two-qubit gate time (e.g., $100$ $\mu$s).
+\end{itemize}
+
+\subsection{Turnover Point Analysis}
+
+Quantum advantage is achieved when $T_{\text{quantum}} < T_{\text{classical}}$, or:
+\[
+2^{n/2} \cdot (1 + 2n) \cdot t_g < 2^n \cdot t_c
+\]
+Assuming $t_g = 100\ \mu$s and $t_c = 1$ ns, this simplifies to:
+\[
+10^5 \cdot (1 + 2n) < 2^{n/2}
+\]
+
+\textbf{Numerical solution:}
+\begin{itemize}
+    \item For $n=30$: $10^5 \times 61 = 6.1 \times 10^6 < 2^{15} = 32,768$ (not yet quantum-advantaged)
+    \item For $n=40$: $10^5 \times 81 = 8.1 \times 10^6 < 2^{20} = 1,048,576$ (not yet quantum-advantaged)
+    \item For $n=50$: $10^5 \times 101 = 1.01 \times 10^7 < 2^{25} = 33,554,432$ (quantum begins to win)
+    \item For $n=60$: $10^5 \times 121 = 1.21 \times 10^7 < 2^{30} = 1,073,741,824$ (quantum is much faster)
+\end{itemize}
+
+\noindent
+\textbf{Conclusion:} The quantum-classical turnover for rare-event sampling with $p_g = 2^{-n}$ occurs at $n \approx 50$ qubits on current trapped ion hardware, accounting for slower gate times but all-to-all connectivity and high fidelity. For structured problems or higher $p_g$, the turnover occurs at lower $n$.
+
+\subsection{Performance Projections and Practical Implications}
+
+\begin{table}[h]
+\centering
+\caption{Sampling performance for $n$-qubit system ($p_g=2^{-n}$, $t_g=100\ \mu$s)}
+\begin{tabular}{l|c|c|c}
+\textbf{Method} & \textbf{Time/sample} & \textbf{Samples/sec} & \textbf{Error} \\
+\hline
+Rejection (CPU) & $2^n$ ns & $2^{-n}$ ns$^{-1}$ & 0\% \\
+Quantum (trapped ion HW) & $2^{n/2} \cdot (1+2n) \cdot 10^5$ ns & $[2^{n/2} \cdot (1+2n) \cdot 10^5]^{-1}$ ns$^{-1}$ & $<1\%$ \\
+\end{tabular}
+\end{table}
+
+\noindent
+\textbf{Sensitivity Analysis:}
+\begin{itemize}
+    \item If $t_g$ improves to $50\ \mu$s: turnover at $n=45$
+    \item If $D_O$ and $D_D$ are optimized (e.g., via native multi-qubit gates): turnover at $n=40$
+    \item For higher $p_g$ (more `good' states): turnover at lower $n$
+\end{itemize}
+
+\subsection{Error Mitigation Requirements and Outlook}
+
+To achieve practical quantum advantage in sampling:
+\begin{itemize}
+    \item Two-qubit fidelities $>99.9\%$ (current: 99.9–99.99\%)
+    \item Coherence times $>1$ min (current: $>10$ min already sufficient)
+    \item Error mitigation (zero-noise extrapolation, dynamical decoupling, probabilistic error cancellation) can reduce sampling error to below $1\%$
+    \item No need for SWAP gates or complex routing, thanks to all-to-all connectivity
+\end{itemize}
+
+\noindent
+\textbf{Roadmap:}
+\begin{itemize}
+    \item 2026: 32–50 qubit demonstrations for rare-event sampling ($p_g \leq 10^{-10}$)
+    \item 2027: Native multi-qubit gate integration and further gate speed improvements
+    \item 2028: Commercial trapped ion quantum sampling coprocessors for scalable ML workflows and hybrid quantum-classical inferenc
+\end{itemize}
+
+\noindent
+\textbf{Summary:} Trapped ion quantum hardware provides a compelling platform for quantum-enhanced sampling, particularly for deep circuits and rare-event problems. The combination of all-to-all connectivity, long coherence times, and ultra-high gate fidelities offsets the slower gate speeds compared to superconducting qubits. As a result, quantum advantage for sampling is projected to emerge at $n \geq 50$ qubits for unstructured search, and significantly earlier for structured or highly parallelizable logical connectives. These features make trapped ion systems especially attractive for scalable quantum machine learning and probabilistic inference in the near future.
+
+
+\appendix
+    %\chapter{Supplementary Material}
+    \chapter{Code Listings}
+    \label{Appendix_pseudocodes}
+    %\chapter{Additional Figures and Tables}
+
+\backmatter
+\printbibliography
+
+\end{document}
