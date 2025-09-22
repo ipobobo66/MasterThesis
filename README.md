@@ -102,5 +102,5 @@ Steps / requirements for running the code and generating quantum circuits from T
 
 For questions, feedback, or collaboration, please contact:
 
-**Author**: Simon Botond 
-**Email**: ipobobo66@gmail.com
+- **Author**: Simon Botond 
+- **Email**: ipobobo66@gmail.com
