@@ -28,7 +28,7 @@ Here is a high-level look at what is inside:
 
 | Folder / File | Description |
 |---------------|-------------|
-| `thesis formatting` | Templates, LaTeX and .pdf files, style files etc., used for writing the thesis. |
+| `thesis formatting` | Templates, LaTeX and .pdf files, style files etc., used for writing and formatting the thesis. The formatting is used for Latex projects. Courtesy of TUM. |
 | `Qiskit setup and demos` | Code notebooks / scripts for quantum computing demos using Qiskit. Contains setiing up qiskit, and introducing circuits, gates and measurements. |
 | `PPT folder` | Presentation slides for defense or progress reports. Contains the final work itself. |
 | `Bibliography` | Reference files (BibTeX, etc.) and related citation management. |
@@ -39,9 +39,10 @@ Here is a high-level look at what is inside:
 
 ## Structure
 
-Here is a suggested directory structure (reflecting what I see, may need tweaks):
+The directory structure is (including sub-folders and file extensions):
 
 ```
+
 MasterThesis/
 ├── Bibliography/
     ├── .pdf and .nbib files
@@ -55,27 +56,36 @@ MasterThesis/
         ├──pics/
             ├── .png and .jpg files for the thesis
 ├── Qiskit setup and demos/
+    ├── Q programming - IBM
+        ├── Basics of qiskit with circuits, gates, measurements -- .ipynb
+    ├── TNReason Demos
+        ├── Notebooks for demonstrating TNReason nomenclature and module workflows -- .ipynb
+    ├── Tutorials
+        ├── The two primitives together in a collective of notebooks showcasing the fit and possibilities with basic demos and assignments -- .ipynb
+├── thesis formatting/
+    ├── the complete fileset for the thesis formatting in use. Also included in '/PPT folder/THESIS/'
 ├── dump/
-└── thesis formatting/
+    ├── dump files -- soon to be deleted
+
 ```
 
-- The **main manuscript and formatted thesis** lives under `thesis formatting`.  
-- **Code & demos** are in `Qiskit setup and demos` & possibly in `HUBOQUBO` / `KBtoTN`.  
-- **Presentations** are in the `PPT folder`.  
+- **Codes and jupyter notebooks** are under `KBtoTN` folder (as in Knowledge Base to Tensor Networks).
+- The **fileset for the thesis formatting** is included under `thesis formatting` as well as within `/PPT folder/THESIS/`.  
+- **Demos** are in `Qiskit setup and demos` & possibly in `HUBOQUBO` / `KBtoTN`.  
+- **Presentations, main manuscript and formatted thesis** are in the `PPT folder`.  
 - **Supporting references** are stored in `Bibliography`.  
 
 ---
 
 ## Setup & Requirements
 
-If someone else wants to run your code or view the notebooks, here are likely steps / requirements:
+Steps / requirements for running the code and generating quantum circuits from TNReason suitable knowledge bases (propositional logical formulas):
 
-1. Install Python (version used in this work, e.g., 3.x)  
+1. Install Python (version used in this work: 3.9.x)  
 2. Use a virtual environment (venv or conda)  
-3. Install dependencies, probably including `qiskit`, `numpy`, `scipy`, perhaps other QUBO solvers or quantum platforms  
+3. Install dependencies, probably including `qiskit`, `numpy`, `scipy` and of course `TNReason`.  
 4. Jupyter / JupyterLab to view notebooks  
 
-You might consider adding a `requirements.txt` or `environment.yml` file so that it’s easy to reproduce the environment.
 
 ---
 
