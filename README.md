@@ -32,7 +32,7 @@ Here is a high-level look at what is inside:
 | `Qiskit setup and demos` | Code notebooks / scripts for quantum computing demos using Qiskit. Contains setiing up qiskit, and introducing circuits, gates and measurements. |
 | `PPT folder` | Presentation slides for defense or progress reports. Contains the final work itself. |
 | `Bibliography` | Reference files (BibTeX, etc.) and related citation management. |
-| `KBtoTN` | Basic files needed for the thesis. All the mapping modules, amplitude amplification implementation, plotting algorithms. The whole procedure itself houses all the previously mentioned primitives, and is included in this folder. |
+| `KBtoQuantum` | Basic files needed for the thesis. All the mapping modules, amplitude amplification implementation, plotting algorithms. The whole procedure itself houses all the previously mentioned primitives, and is included in this folder. Also includes the figures created, ones used in the thesis or in the presentations, as well as some dump. |
 | `dump` | Miscellaneous files, old versions, or data that don’t fit neatly elsewhere. Usually deleted in a monthly (or so) basis. |
 
 ---
@@ -46,14 +46,18 @@ The directory structure is (including sub-folders and file extensions):
 MasterThesis/
 ├── Bibliography/
     ├── .pdf and .nbib files
-├── KBtoTN/
-    ├── .png and .ipynb files
+├── KBtoQuantum/
+    ├── most important .ipynb files for the thesis
+    ├── figures_unused/
+        ├── unused .png and .jpg files, used ones are under `PPT folder/THESIS/pics/`
+    ├── notebooks_unused/
+        ├── unused .ipynb notebooks
 ├── PPT folder/
     ├── ToDo notelist
     ├── .pdf files for describing the assingment and for the roadmap, as well as presenting the results
     ├── THESIS/
         ├── All the formatting files and the final work (.pdf) itself
-        ├──pics/
+        ├── pics/
             ├── .png and .jpg files for the thesis
 ├── Qiskit setup and demos/
     ├── Q programming - IBM
