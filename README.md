@@ -46,14 +46,18 @@ The directory structure is (including sub-folders and file extensions):
 MasterThesis/
 ├── Bibliography/
     ├── .pdf and .nbib files
-├── KBtoTN/
-    ├── .png and .ipynb files
+├── KBtoQuantum/
+    ├── most important .ipynb files for the thesis
+    ├── figures_unused/
+        ├── unused .png and .jpg files, used ones are under `PPT folder/THESIS/pics/`
+    ├── notebooks_unused/
+        ├── unused .ipynb notebooks
 ├── PPT folder/
     ├── ToDo notelist
     ├── .pdf files for describing the assingment and for the roadmap, as well as presenting the results
     ├── THESIS/
         ├── All the formatting files and the final work (.pdf) itself
-        ├──pics/
+        ├── pics/
             ├── .png and .jpg files for the thesis
 ├── Qiskit setup and demos/
     ├── Q programming - IBM
