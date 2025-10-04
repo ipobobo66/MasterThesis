@@ -1,9 +1,18 @@
 import numpy as np
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 import qiskit as qis
-import itertools
-import math
+
+from qiskit.quantum_info.operators.random import * 
+from qiskit_aer.backends import AerSimulator
+from qiskit.quantum_info import *
+
+import numpy as np
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit.visualization import plot_histogram, plot_bloch_multivector
+
 from matplotlib.pyplot import figure
+import itertools
+
+%pylab inline
 
 """Code elements for the mapping procedure"""
 
