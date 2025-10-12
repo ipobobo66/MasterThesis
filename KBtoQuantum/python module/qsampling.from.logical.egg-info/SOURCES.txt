@@ -1,6 +1,0 @@
-QSampling_from_logical.py
-setup.py
-qsampling.from.logical.egg-info/PKG-INFO
-qsampling.from.logical.egg-info/SOURCES.txt
-qsampling.from.logical.egg-info/dependency_links.txt
-qsampling.from.logical.egg-info/top_level.txt

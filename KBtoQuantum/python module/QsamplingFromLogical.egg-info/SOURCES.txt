@@ -1,4 +1,4 @@
-QSampling_from_logical.py
+QsamplingFromLogical.py
 setup.py
 QsamplingFromLogical.egg-info/PKG-INFO
 QsamplingFromLogical.egg-info/SOURCES.txt
