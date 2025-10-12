@@ -48,6 +48,8 @@ MasterThesis/
     ├── .pdf and .nbib files
 ├── KBtoQuantum/
     ├── most important .ipynb files for the thesis
+    ├── python module/
+        ├── setup and module .py files that can be cloned and utilized
     ├── figures_unused/
         ├── unused .png and .jpg files, used ones are under `PPT folder/THESIS/pics/`
     ├── notebooks_unused/
@@ -74,8 +76,9 @@ MasterThesis/
 ```
 
 - **Codes and jupyter notebooks** are under `KBtoTN` folder (as in Knowledge Base to Tensor Networks).
+- **The python module for the procedure** can be found in *KBtoQuantum/python module/*. It can be cloned and utilized, calls all the needed dependencies, such as `qiskit`, `numpy`, `scipy`, `matplotlib`, etc.
 - The **fileset for the thesis formatting** is included under `thesis formatting` as well as within `/PPT folder/THESIS/`.  
-- **Demos** are in `Qiskit setup and demos` & possibly in `HUBOQUBO` / `KBtoTN`.  
+- **Demos** are in `Qiskit setup and demos` & in `HUBOQUBO` / `KBtoTN`.  
 - **Presentations, main manuscript and formatted thesis** are in the `PPT folder`.  
 - **Supporting references** are stored in `Bibliography`.  
 
@@ -87,7 +90,7 @@ Steps / requirements for running the code and generating quantum circuits from T
 
 1. Install Python (version used in this work: 3.9.x)  
 2. Use a virtual environment (venv or conda)  
-3. Install dependencies, probably including `qiskit`, `numpy`, `scipy` and of course `TNReason`.  
+3. Clone the .py source from *KBtoQuantum/python module/*, and import it to the virtual environment.
 4. Jupyter / JupyterLab to view notebooks  
 
 
