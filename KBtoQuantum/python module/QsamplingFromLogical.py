@@ -113,12 +113,7 @@ def logicaltoquantum(expression):
     """out_reg = ClassicalRegister(1, name = "OUT")
     circuit.add_register(anc_reg, out_reg)"""
     circuit.add_register(anc_reg)
-        
-    #qreg = QuantumRegister(len(qubits_map), name="q")
-    #creg = ClassicalRegister(1, name="OUT")
-    #circuit = QuantumCircuit(qreg, creg) #generate the quantum registers and circuit based on the no. of variables + ancillas
-    
-    
+
     #Add Hadamard Gates to Basis Qubits to create superposition
     basis_qubits = set(range(len(variables)))  # Indices of the logical variables
     for q in basis_qubits:
@@ -173,6 +168,7 @@ def formula_probability(formula, variables):
     return total
 
 """Oracle and diffusion operators for amplitude amplification"""
+"""Oracle is generated for states 0 and 1 as well, but chosen by the program, for the one with the lower probabilty"""
 
 def amplification_rounds(formula, variables):
     c1 = formula_probability(formula, variables)

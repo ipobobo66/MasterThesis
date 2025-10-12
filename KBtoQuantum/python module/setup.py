@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="QsamplingFromLogical",        # Name of your package
-    version="0.1",
+    version="1.0",
     py_modules=["QsamplingFromLogical"],  # The file name (without .py)
     author="Simon Botond",
     description="Quantum logic sampling tools",
