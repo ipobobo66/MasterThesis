@@ -91,8 +91,8 @@ Steps / requirements for running the code and generating quantum circuits from T
 1. Install Python (version used in this work: 3.9.x)  
 2. Use a virtual environment (venv or conda)  
 3. Clone the .py source from *KBtoQuantum/python module/*, and import it to the virtual environment.
-4. Jupyter / JupyterLab to view notebooks  
-
+4. All the neccesary modules can be seen in *KBtoQuantum/module_test_run.ipynb*, those should be imported for running the code.
+5. Jupyter / JupyterLab to view notebooks  
 
 ---
 
